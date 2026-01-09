@@ -15,95 +15,41 @@ class Tensor:
     def __init__(self, data, _children=(), required_grad=True, op=""):
         self.data = float(data)
         self.grad = 0.0
+        self._children = set(_children)
+        self._chain_rule = lambda: None
         self.op = op
-        self.required_grad = required_grad
-        self._backward = lambda: None
-        self._children = tuple(_children)
-        self._parent = set()
 
     def __repr__(self):
-        return f"Tensor(data={self.data})"
+        return f"value = ({self.data})"
 
+    def __add__(self, val):
+        val = val if isinstance(val, Tensor) else Tensor(val)
+        y = Tensor(self.data + val.data, (self, val), op = "+")
+        def _chain_rule(self):
+            self.grad += 1.0 * y.grad
+            val.grad += 1.0 * y.grad
+        y._chain_rule = _chain_rule
+        return y
+    __radd__ = __add__
 
-    def __add__(self, value):
-        value = value if isinstance(value, Tensor) else Tensor(value)
-        result = Tensor(self.data + value.data,(self, value), op= "+")
-        def _backward():
-            self.grad += 1.0 * result.grad
-            value.grad += 1.0 * result.grad
-        result._backward = _backward
-        return result
-
-    __radd__=__add__
-    
-    def __sub__(self, value):
-        value = value if isinstance(value, Tensor) else Tensor(value)
-        result = Tensor(self.data - value.data,(self, value), op = "-" )
-        
-        def _backward(): 
-            self.grad += 1.0 * result.grad 
-            value.grad += -1.0 * result.grad 
-        result._backward = _backward
-        return result
-    
-    def __rsub__(self, value): 
-        return Tensor(value) - self
-    
-
-    def __mul__(self, value):
-        value = value if isinstance(value, Tensor) else Tensor(value)
-        result = Tensor(self.data * value.data,(self, value), op = "*")
-        def _backward():
-            self.grad += value.data * result.grad
-            value.grad += self.data * result.grad
-        result._backward = _backward
-        return result
-     
+    def __mul__(self, val):
+        val = val if isinstance(val, Tensor) else Tensor(val)
+        y = Tensor(self.data * val.data, (self, val), op = "*")
+        def _chain_rule(self):
+            self.grad += val.data * y.grad 
+            val.grad += self.data * y.grad
+        y._chain_rule =_chain_rule
+        return y
     __rmul__ = __mul__
-    
-
-    def __truediv__(self, value):
-        value = value if isinstance(value, Tensor) else Tensor(value)
-        result = Tensor(self.data / value.data, op = "/")
-
-        def _backward(): 
-            self.grad += (1/value.data) * result.grad 
-            value.grad += (-self.data / (value.data**2)) * result.grad 
-        result._backward = _backward
-        return result
-    
-    def __rtruediv__(self, value): 
-        return Tensor(value) / self
-
-
-    def __pow1__(self, value):
-        value = value if isinstance(value, Tensor) else Tensor(value)
-        result = Tensor(self.data ** value.data, op = "power")
-        def _backward(): 
-            self.grad += (value.data * self.data**(value.data - 1)) * result.grad # ignoring derivative wrt exponent for now 
-        result._backward = _backward 
-        return result
-    
-    def __rpow1__(self, value):
-        return self ** value
 
     def tanh(self):
         x = self.data
-        t = (math.exp(2*x) - 1)/(math.exp(2*x) + 1)
-        result = Tensor(t, (self, ), op="tanh")
-        def _backward():
-            self.grad = (1-t**2)*result.grad
-        result._backward = _backward
-        return result
-
-       
-    def backward(self):
-        #TODO:
-        """
-        - Topilogical sort
-        - reverse traversal
-            """
-        pass
+        t = (math.exp(x**2) - 1)/(math.exp(x**2) + 1)
+        y = Tensor(t, (self, ), op = "tanh")
+        def _chain_rule():
+            self.grad = (1 - t**2)* y.grad
+        y._chain_rule = _chain_rule
+        return y
 
 """
 Once TODO1 is solid:

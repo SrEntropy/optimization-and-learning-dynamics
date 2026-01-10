@@ -1,83 +1,60 @@
 from tensor import Tensor
-# Validation
 
-"""
--------Test 1: Simple chain-----------
-"""
-x1 = Tensor(2.0)
-w1 = Tensor(-3.0)
+def header(title):
+    print("\n" + "=" * 60)
+    print(title)
+    print("=" * 60)
 
-x1w1 = x1*w1 
+# ------------------------------------------------------------
+# Test 1: Simple Chain Rule
+# ------------------------------------------------------------
+header("Test 1: Simple Chain Rule")
 
+x = Tensor(2.0)
+y = Tensor(3.0)
+z = x * y + x
+z.backprop()
 
-x2 = Tensor(0.0)
-w2 = Tensor(1.0)
+print(f"x.grad (expected 4): {x.grad}")
+print(f"y.grad (expected 2): {y.grad}")
 
-#Node2
-x2w2 = x2*w2
-print(x2w2._children, x2w2.op, x2w2)
+assert abs(x.grad - 4.0) < 1e-6, "Incorrect gradient for x"
+assert abs(y.grad - 2.0) < 1e-6, "Incorrect gradient for y"
 
-#Layer-2
-#Node1
-x1x2 = x1w1 + x2w2
-print( x1x2._children, x1x2.op, x1x2) 
-#Node2
-b = Tensor(6.88137)
-
-#Layer-3
-#Node1
-n = x1x2+b 
-print(n._children, n.op, n)
-#Layer-4
-
-o = n.tanh()
-print(o._children, o.op, o)
-
-o.grad = 1.0
-print(o.grad)
-o._chain_rule()
-print("n =", n.data, "n_grad = ",n.grad)
-"""
-n._backward()
-print("x1x2= ",x1x2.data, "x1x2_grad = ",x1x2.grad)
-print("b =", "b_grad = ", b.grad)
-
-x1x2._backward()
-b._backward()
-print("x1w1 = ",x1w1.data, "x1w1_grad = ",x1w1.grad)
-print("x2w2 =", x2w2.data, "x2w2_grad = ", x2w2.grad)
+print("✓ Passed: gradients match analytical derivatives")
 
 
-x1w1._backward()
-x2w2._backward()
-print("x1 = ",x1.data, "x1_grad = ",x1.grad)
-print("w1 = ",w1.data, "w1_grad = ",w1.grad)
-print("x2 = ",x2.data, "x1_grad = ",x2.grad)
-print("w2 = ",w2.data, "x1_grad = ",w2.grad)
-
-Result:
-dz/dx = y + 1 = 4
-dz/dy = x =  2  
-""" 
-
-""" 
-Test 2: Non-linearity
+# ------------------------------------------------------------
+# Test 2: Non-linearity (tanh)
+# ------------------------------------------------------------
+header("Test 2: Non-linearity (tanh)")
 
 x = Tensor(0.5)
 y = x.tanh()
-y.backward()
+y.backprop()
 
- 
-Result:
-- Check against analytical derivative
-"""
+expected = 1 - y.data**2
+print(f"x.grad (expected {expected}): {x.grad}")
 
-""" 
-Test 3: Shared Sub-graph
+assert abs(x.grad - expected) < 1e-6, "Incorrect tanh derivative"
 
-x = Tensor()
+print("✓ Passed: tanh derivative matches analytical form")
+
+
+# ------------------------------------------------------------
+# Test 3: Shared Subgraph
+# ------------------------------------------------------------
+header("Test 3: Shared Subgraph")
+
+x = Tensor(2.0)
 y = x * x + x
-y.backward() 
-Result: Correct accumulation
-- dy/dx = 2x + 1 = 5
-"""
+y.backprop()
+
+expected = 2 * x.data + 1
+print(f"x.grad (expected {expected}): {x.grad}")
+
+assert abs(x.grad - expected) < 1e-6, "Incorrect gradient accumulation"
+
+print("✓ Passed: gradient accumulation over shared subgraph is correct")
+
+print("\nAll tests passed successfully.")

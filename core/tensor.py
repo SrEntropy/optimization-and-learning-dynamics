@@ -12,10 +12,10 @@ import math
 import numpy as np
 
 class Tensor:
-    def __init__(self, data, _children=(), required_grad=True, op=""):
+    def __init__(self, data, _children=(), required_grad=True, op="leaf"):
         self.data = float(data)
         self.grad = 0.0
-        self._children = set(_children)
+        self._children = tuple(_children)
         self._chain_rule = lambda: None
         self.op = op
 
@@ -25,7 +25,7 @@ class Tensor:
     def __add__(self, val):
         val = val if isinstance(val, Tensor) else Tensor(val)
         y = Tensor(self.data + val.data, (self, val), op = "+")
-        def _chain_rule(self):
+        def _chain_rule():
             self.grad += 1.0 * y.grad
             val.grad += 1.0 * y.grad
         y._chain_rule = _chain_rule
@@ -35,21 +35,40 @@ class Tensor:
     def __mul__(self, val):
         val = val if isinstance(val, Tensor) else Tensor(val)
         y = Tensor(self.data * val.data, (self, val), op = "*")
-        def _chain_rule(self):
+        def _chain_rule():
             self.grad += val.data * y.grad 
             val.grad += self.data * y.grad
         y._chain_rule =_chain_rule
         return y
+
     __rmul__ = __mul__
 
     def tanh(self):
         x = self.data
-        t = (math.exp(x**2) - 1)/(math.exp(x**2) + 1)
+        t = (math.exp(x*2) - 1)/(math.exp(x*2) + 1)
         y = Tensor(t, (self, ), op = "tanh")
         def _chain_rule():
-            self.grad = (1 - t**2)* y.grad
+            self.grad = (1 - t**2) * y.grad
         y._chain_rule = _chain_rule
         return y
+
+    def backprop(self):
+        top_nodes = []
+        visited = set()
+        def visit(v):
+            if v not in visited:
+                visited.add(v)
+                for child in v._children:
+                    visit(child)
+                top_nodes.append(v)
+
+        visit(self)
+        self.grad = 1.0
+        for node in top_nodes[::-1]:
+            node._chain_rule()
+            print(
+    f"[NODE] op={node.op}, value={node.data}, grad={node.grad} | "f"<-- children={[child.data for child in node._children]}"
+)
 
 """
 Once TODO1 is solid:

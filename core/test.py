@@ -1,4 +1,4 @@
-from tensor import Tensor
+from value import Value
 
 def header(title):
     print("\n" + "=" * 60)
@@ -10,8 +10,8 @@ def header(title):
 # ------------------------------------------------------------
 header("Test 1: Simple Chain Rule")
 
-x = Tensor(2.0)
-y = Tensor(3.0)
+x = Value(2.0)
+y = Value(3.0)
 z = x * y + x
 z.backprop()
 
@@ -29,7 +29,7 @@ print("✓ Passed: gradients match analytical derivatives")
 # ------------------------------------------------------------
 header("Test 2: Non-linearity (tanh)")
 
-x = Tensor(0.5)
+x = Value(0.5)
 y = x.tanh()
 y.backprop()
 
@@ -46,7 +46,7 @@ print("✓ Passed: tanh derivative matches analytical form")
 # ------------------------------------------------------------
 header("Test 3: Shared Subgraph")
 
-x = Tensor(2.0)
+x = Value(2.0)
 y = x * x + x
 y.backprop()
 
@@ -58,14 +58,3 @@ assert abs(x.grad - expected) < 1e-6, "Incorrect gradient accumulation"
 print("✓ Passed: gradient accumulation over shared subgraph is correct")
 
 print("\nAll tests passed successfully.")
-
-header("Test 4: Freeze leaf x")
-x = Tensor(2.0, required_grad=False)
-y = Tensor(3.0)
-z = x * y + x
-z.backprop()
-
-print("x.grad =", x.grad)   # expect 0
-print("y.grad =", y.grad)   # expect 2
-
-

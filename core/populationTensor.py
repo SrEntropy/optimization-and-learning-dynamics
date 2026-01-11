@@ -14,7 +14,6 @@ class PopulationTensor:
             self.data = [float(data)]
         else: 
             self.data = list(data)
-
         self.grad = [0.0 for _ in self.data]
         self.required_grad = required_grad
         self.op = op
@@ -35,7 +34,8 @@ class PopulationTensor:
             raise ValueError(
                  f" Population size mismatch:{len(self.data)} vs {len(other.data)}"
                  )
-        
+    def zero_grad(self):
+        self.grad= [ 0.0 for _ in range(len(self.grad))]
     #-------------------------
     # Elementwise operations
     #-------------------------
@@ -135,5 +135,5 @@ class PopulationTensor:
             # Debug print (optional)
             print(
                 f"[NODE] op={node.op}, value={node.data}, grad={node.grad} | "
-                f"<-- children={[child.data for child in node._parents]}"
+                f"<-- Parents={[child.data for child in node._parents]}"
             )

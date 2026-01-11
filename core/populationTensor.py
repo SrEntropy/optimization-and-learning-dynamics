@@ -3,114 +3,137 @@ import math
 class PopulationTensor:
     """
     Population Tensor:
-    Represent a vector-valued node corresponding to a population of homogeneous scalar units sharing the same operation.
-    - Scalars are treated as population of size 1 (see value.py where classical scalar-only autodiff is implemented as a base-line.).
+    Represent a vector-valued nodecoresponingto a population of hoogeneous calar units sharing the same operation.
+    - Scalars are 
+    treated as population of size 1 (see value.py where classical scalar-only autodiff is implemented as a base-line.).
     Objective: This abstraction is intentionally chosen to study learning dynamic, population coding, and brain-inspired models, rather than classical scalar-only autodiff.
     """
-    def __init__(self, data, _children=(), required_grad=True, op="leaf"):
-        # Update: Handle both list(vector) and floats(scalar) 
-        if isinstance(data, list):
+    def __init__(self, data, _parents=(), required_grad=True, op="leaf"):
+        # Normalize data: always a vector 
+        if isinstance(data, (int, float)):
             self.data = [float(data)]
-            self.grad = [0.0 * len(self.data)]
         else: 
-            self.data = float(data)
-            self.grad = 0.0
+            self.data = list(data)
 
+        self.grad = [0.0 for _ in self.data]
         self.required_grad = required_grad
         self.op = op
-        self._children = tuple(_children)
-        self._chain_rule = lambda: None
+        self._parents = tuple(_parents)
+        self._backward = lambda: None
         
-    #
     def __repr__(self):
-        return f"Tensor(data={[self.data]}, grad={[self.grad]}, op='{self.op}')"
+        return (
+            f"PopulationTensor(data={self.data}, "
+            f"grad={self.grad}, op='{self.op}')"
+            )
+    #-------------------------
+    # Internal utilities
+    #-------------------------
 
-    def _enforce_shape(self, val):
-        if len(self.data) != len(val.data):
-            raise ValueError("Shape mismatch Tensor operation")
+    def _enforce_shape(self, other):
+        if len(self.data) != len(other.data):
+            raise ValueError(
+                 f" Population size mismatch:{len(self.data)} vs {len(other.data)}"
+                 )
         
-    def __add__(self, val):
-        self._enforce_shape(val)
-        val = val if isinstance(val, Tensor) else Tensor(val)
+    #-------------------------
+    # Elementwise operations
+    #-------------------------
 
-        #Forward Pass:
-        #1. Vector addition + Broadcasting
-        if isinstance(self.data, list) and isinstance(val.data, list):
-            new_data = [a + b for a, b in zip(self.data, val.data)]
-        #2. Vector + Scalar
-        elif isinstance(self.data, list):
-            new_data = [x + val.data for x in self.data]
-        #3. Scalar + Vector
-        elif isinstance(val.data, list):
-            new_data = [self.data + x for x in val.data]
-        else:
-            new_data = self.data + val.data
+    def __add__(self, other):
+        other = other if isinstance(other, PopulationTensor) else PopulationTensor(other)
+        self._enforce_shape(other)
         
-        y = Tensor(new_data, (self, val), op = "+")
-        #2. Backward Pass: Handle vector gradients
-        def _chain_rule():
-            # If self is a vector, distribute the upstream gradient
-            if isinstance(self.data, list):
-                #Gradient of addition is 1.0--> element wise if list-->return [1.0, 1.0, 1.0] else return---->[1.0]*3---->[1.0, 1.0, 1.0] 
-                upstream = y.grad if isinstance(y.grad, list) else [y.grad]*len(self.data) 
-                for i in range(len(self.grad)):
-                  self.grad[i] += upstream[i]  
-            else: 
-                #If self is a scalar, sum all upstream gradients(Broadcasting rule)
-                self.grad += sum(y.grad) if isinstance(y.grad, list) else y.grad
+        #Forward Pass
+        out_data = [a + b for a, b in zip(self.data, other.data)]
+        out =  PopulationTensor(out_data, (self, other), op = "+")
 
-            if isinstance(self.val, list):
-                upstream = y.grad if isinstance(y.grad, list) else [y.grad]*len(val.data) 
-                for i in range(len(val.grad)):
-                  val.grad[i] += upstream[i]  
-            else: 
-                #If self is a scalar, sum all upstream gradients(Broadcasting rule)
-                val.grad += sum(y.grad) if isinstance(y.grad, list) else y.grad
-                
-        y._chain_rule = _chain_rule        
-        return y
-    
+        # --- Backward Pass ---
+        def _backward():
+            for i in range(len(self.data)):
+                self.grad[i] += out.grad[i]   
+                other.grad[i] += out.grad[i]    
+
+        out._backward = _backward
+        return out
+
     __radd__ = __add__
 
-    def __mul__(self, val):
-        self._enforce_shape(val)
-        val = val if isinstance(val, Tensor) else Tensor(val)
-        y = Tensor(self.data * val.data, (self, val), op = "*")
-        def _chain_rule():
-            self.grad += val.data * y.grad 
-            val.grad += self.data * y.grad
-        y._chain_rule = _chain_rule
-        return y
+    def __mul__(self, other):
+        # --- Forward Pass ---
+        other = other if isinstance(other, PopulationTensor) else PopulationTensor(other)
+        self._enforce_shape(other)
+        # z = x * y
+        out_data = [a * b for a, b in zip(self.data, other.data)]
+        out = PopulationTensor(out_data, (self, other), op="*")
+
+        # --- Backward Pass ---
+        def _backward():
+            # For each i: z_i = x_i * y_i # dz_i/dx_i = y_i, dz_i/dy_i = x_i
+            for i in range(len(self.data)):
+                self.grad[i] += other.data[i] * out.grad[i]
+                other.grad[i] += self.data[i] * out.grad[i]
+
+        out._backward = _backward
+        return out
 
     __rmul__ = __mul__
 
     def tanh(self):
-        x = self.data
-        t = (math.exp(x*2) - 1)/(math.exp(x*2) + 1)
-        y = Tensor(t, (self, ), op = "tanh")
-        def _chain_rule():
-            self.grad += (1 - t**2) * y.grad
-        y._chain_rule = _chain_rule
-        return y
+        # --- Forward Pass ---
+        out_tanh = [math.tanh(x) for x in self.data]
+        out = PopulationTensor(out_tanh, (self, ), op = "tanh")
 
+        # --- Backward Pass ---
+        def _backward():
+            for i in range(len(self.data)):
+                self.grad[i] += (1 - out_tanh[i]**2) * out.grad[i]
+
+        out._backward= _backward
+        return out
+
+    #-------------------------
+    # Reduction
+    #-------------------------
+    def sum(self):
+        out = PopulationTensor(sum(self.data), (self, ), op = "sum")
+        def _backward():
+            for i in range(len(self.data)):
+                self.grad[i] += out.grad[0]   
+
+        out._backward= _backward
+        return out
+    
+    #-------------------------
+    # Reduction
+    #-------------------------
+    
     def backprop(self):
-        top_nodes = []
+        # Performs reverse-mode autodiff.
+        # --- Build topological order ---
+        topo_nodes = []
         visited = set()
+
         def visit(v):
             if v not in visited:
                 visited.add(v)
-                for child in v._children:
+                for child in v._parents:
                     visit(child)
-                top_nodes.append(v)
+                topo_nodes.append(v)
 
         visit(self)
-        self.grad = 1.0
-        for node in top_nodes[::-1]:        
-            node._chain_rule()
+
+        # --- Seed gradient (population of size 1) ---
+        # d(output)/d(output) = 1
+        self.grad = [1.0 for _ in self.grad]
+
+        # --- Backward Pass ---
+        # Walk graph in reverse topological order
+        for node in reversed(topo_nodes):
+            node._backward()  # apply local derivative
+
+            # Debug print (optional)
             print(
-    f"[NODE] op={node.op}, value={node.data}, grad={node.grad} | "f"<-- children={[child.data for child in node._children]}"
-)
-
-
-
-
+                f"[NODE] op={node.op}, value={node.data}, grad={node.grad} | "
+                f"<-- children={[child.data for child in node._parents]}"
+            )

@@ -1,4 +1,4 @@
-from value import Value
+from value import PopulationTensor
 
 def header(title):
     print("\n" + "=" * 60)
@@ -10,8 +10,8 @@ def header(title):
 # ------------------------------------------------------------
 header("Test 1: Simple Chain Rule")
 
-x = Value(2.0)
-y = Value(3.0)
+x = PopulationTensor(2.0)
+y = PopulationTensor(3.0)
 z = x * y + x
 z.backprop()
 
@@ -29,7 +29,7 @@ print("✓ Passed: gradients match analytical derivatives")
 # ------------------------------------------------------------
 header("Test 2: Non-linearity (tanh)")
 
-x = Value(0.5)
+x = PopulationTensor(0.5)
 y = x.tanh()
 y.backprop()
 
@@ -46,7 +46,7 @@ print("✓ Passed: tanh derivative matches analytical form")
 # ------------------------------------------------------------
 header("Test 3: Shared Subgraph")
 
-x = Value(2.0)
+x = PopulationTensor(2.0)
 y = x * x + x
 y.backprop()
 

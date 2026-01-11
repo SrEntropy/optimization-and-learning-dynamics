@@ -1,19 +1,11 @@
-
-#TODO: Minimal Tensor clas
-# Roadmap:
-# 1. Scalar autodiff (DONE)
-# 2. Nonlinearities (DONE)
-# 3. Clean-up + comment (DONE)
-# 4. Vector support
-# 5. ops.py modularization
-# 6. XOR experiment
-# 7. Tensor semantics (shape, orientation, transformations)
 import math
 
-class Tensor:
+class PopulationTensor:
     """
-    A minimal scalar reverse autodiff node.
-    Stores a value, gradient, children, and a local backward rule.
+    Population Tensor:
+    Represent a vector-valued node corresponding to a population of homogeneous scalar units sharing the same operation.
+    - Scalars are treated as population of size 1 (see value.py where classical scalar-only autodiff is implemented as a base-line.).
+    Objective: This abstraction is intentionally chosen to study learning dynamic, population coding, and brain-inspired models, rather than classical scalar-only autodiff.
     """
     def __init__(self, data, _children=(), required_grad=True, op="leaf"):
         # Update: Handle both list(vector) and floats(scalar) 

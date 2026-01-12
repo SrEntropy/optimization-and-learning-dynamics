@@ -1,4 +1,4 @@
-from value import PopulationTensor
+from src import PopulationTensor
 
 def header(title):
     print("\n" + "=" * 60)

@@ -1,7 +1,6 @@
+from src.population import PopulationTensor
 
 
-
-from populationTensor import PopulationTensor
 
 def header(title):
     print("\n" + "=" * 60)

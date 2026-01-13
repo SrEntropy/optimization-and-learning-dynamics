@@ -1,4 +1,4 @@
-from src.population import PopulationTensor
+from src.populationNode import PopulationNode
 
 
 
@@ -12,8 +12,8 @@ def header(title):
 # ------------------------------------------------------------
 header("Test 1: Scalar Test (Simple Chain Rule)")
 
-x = PopulationTensor(2.0)
-y = PopulationTensor(3.0)
+x = PopulationNode(2.0)
+y = PopulationNode(3.0)
 z = x * y + x
 print(f"z =  (expected [8.0]): {z.data}")
 z.backprop()
@@ -31,8 +31,8 @@ print("✓ Passed: gradients match analytical derivatives")
 # ------------------------------------------------------------
 header("Test 2: Vector Test (Simple Chain Rule)")
 
-x = PopulationTensor([1.0, 2.0])
-y = PopulationTensor([3.0, 4.0])
+x = PopulationNode([1.0, 2.0])
+y = PopulationNode([3.0, 4.0])
 z = (x + y).sum()     # FIX: must call sum()
 z.backprop()
 
@@ -49,9 +49,9 @@ print("✓ Passed: vector gradients match analytical derivatives")
 # ------------------------------------------------------------
 header("Test 3: XOR-ready neuron")
 
-w = PopulationTensor([1.0, -1.0])
-x = PopulationTensor([1.0, 0.0])
-b = PopulationTensor(0.0)
+w = PopulationNode([1.0, -1.0])
+x = PopulationNode([1.0, 0.0])
+b = PopulationNode(0.0)
 
 z = (w * x).sum() + b
 a = z.tanh()

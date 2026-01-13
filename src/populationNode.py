@@ -1,6 +1,6 @@
 import math
 
-class PopulationTensor:
+class PopulationNode:
     """
     Population Tensor:
     Represent a vector-valued nodecoresponingto a population of hoogeneous calar units sharing the same operation.
@@ -22,7 +22,7 @@ class PopulationTensor:
         
     def __repr__(self):
         return (
-            f"PopulationTensor(data={self.data}, "
+            f"PopulationNode(data={self.data}, "
             f"grad={self.grad}, op='{self.op}')"
             )
     #-------------------------
@@ -41,12 +41,12 @@ class PopulationTensor:
     #-------------------------
 
     def __add__(self, other):
-        other = other if isinstance(other, PopulationTensor) else PopulationTensor(other)
+        other = other if isinstance(other, PopulationNode) else PopulationNode(other)
         self._enforce_shape(other)
         
         #Forward Pass
         out_data = [a + b for a, b in zip(self.data, other.data)]
-        out =  PopulationTensor(out_data, (self, other), op = "+")
+        out =  PopulationNode(out_data, (self, other), op = "+")
 
         # --- Backward Pass ---
         def _backward():
@@ -61,11 +61,11 @@ class PopulationTensor:
 
     def __mul__(self, other):
         # --- Forward Pass ---
-        other = other if isinstance(other, PopulationTensor) else PopulationTensor(other)
+        other = other if isinstance(other, PopulationNode) else PopulationNode(other)
         self._enforce_shape(other)
         # z = x * y
         out_data = [a * b for a, b in zip(self.data, other.data)]
-        out = PopulationTensor(out_data, (self, other), op="*")
+        out = PopulationNode(out_data, (self, other), op="*")
 
         # --- Backward Pass ---
         def _backward():
@@ -82,7 +82,7 @@ class PopulationTensor:
     def tanh(self):
         # --- Forward Pass ---
         out_tanh = [math.tanh(x) for x in self.data]
-        out = PopulationTensor(out_tanh, (self, ), op = "tanh")
+        out = PopulationNode(out_tanh, (self, ), op = "tanh")
 
         # --- Backward Pass ---
         def _backward():
@@ -96,7 +96,7 @@ class PopulationTensor:
     # Reduction
     #-------------------------
     def sum(self):
-        out = PopulationTensor(sum(self.data), (self, ), op = "sum")
+        out = PopulationNode(sum(self.data), (self, ), op = "sum")
         def _backward():
             for i in range(len(self.data)):
                 self.grad[i] += out.grad[0]   

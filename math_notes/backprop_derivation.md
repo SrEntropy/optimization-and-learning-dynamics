@@ -1,5 +1,5 @@
 
-# Backpropagation derivation for PopulationTensor
+# Backpropagation derivation for PopulationNode
 
 This document derives backpropagation from first principles and connects the math directly to the semantics implemented by `population.py` file.
 
@@ -248,7 +248,7 @@ Reverse‑mode autodiff corresponds to propagating $ \frac{\partial z}{\partial 
 
 ## 4. Population‑wise (elementwise) operations
 
-`PopulationTensor` stores a **population of scalars**. Conceptually, you can view it as:
+`PopulationNode` stores a **population of scalars**. Conceptually, you can view it as:
 
 
 
@@ -373,7 +373,7 @@ This matches the intuition from the scalar case, applied independently per popul
 
 ## 5. Reductions: sum
 
-A reduction collapses a vector into a scalar. For `PopulationTensor`, the canonical example is:
+A reduction collapses a vector into a scalar. For `PopulationNode`, the canonical example is:
 
 $$
 s = \text{sum}(\mathbf{x}) = \sum_{i=1}^n x_i
@@ -588,7 +588,7 @@ $$
 
    where $ \frac{\partial v}{\partial p} $ may be a scalar, a vector, or an elementwise expression depending on the operation.
 
-In the `PopulationTensor` context:
+In the `PopulationNode` context:
 
 - Each node is a population (vector) of scalars  
 - Gradients are population‑wise, with elementwise rules for `+`, `*`, and `tanh`  
@@ -654,11 +654,11 @@ If these fail, everything else will too.
 - The **scalar chain rule** is the foundation of backprop.  
 - **Computation graphs** encode dependencies between intermediate results.  
 - **Jacobian‑based chain rules** describe how gradients propagate in the vector case.  
-- For `PopulationTensor`, most operations are **elementwise**, which makes Jacobians diagonal and simplifies gradient flow.  
+- For `PopulationNode`, most operations are **elementwise**, which makes Jacobians diagonal and simplifies gradient flow.  
 - **Reductions** like `sum` broadcast scalar gradients back to all components.  
 - **Nonlinearities** like `tanh` have simple, well‑known derivatives that apply population‑wise.  
 - A **neuron** with $ a = \tanh(w \cdot x + b) $ is a composition of dot product, addition, and nonlinearity; its gradients follow directly from the chain rule.  
 - The **reverse‑mode algorithm** (backprop) is: initialize output gradient to 1, then walk the graph backward, applying local derivative rules and accumulating gradients in parents.
 
-This document provides the mathematical specification that the `PopulationTensor` engine implements. Any deviation between code and these derivations should be treated as a bug in the implementation.
+This document provides the mathematical specification that the `PopulationNode` engine implements. Any deviation between code and these derivations should be treated as a bug in the implementation.
 

@@ -6,7 +6,7 @@
 
 import math
 
-class PopulationTensor:
+class Value:
     """
     A minimal scalar reverse-mode autodiff node.
     Each Value represents a single scalar value in a computation graph.
@@ -42,11 +42,11 @@ class PopulationTensor:
     def __add__(self, val):
         # --- Forward Pass ---
         # Promote Python numbers to Value
-        val = val if isinstance(val, PopulationTensor) else PopulationTensor(val)
+        val = val if isinstance(val, Value) else Value(val)
 
         # Compute the forward value
         # z = x + y
-        y = PopulationTensor(self.data + val.data, (self, val), op="+")
+        y = Value(self.data + val.data, (self, val), op="+")
 
         # --- Backward Pass ---
         # For z = x + y:
@@ -67,10 +67,10 @@ class PopulationTensor:
 
     def __mul__(self, val):
         # --- Forward Pass ---
-        val = val if isinstance(val, PopulationTensor) else PopulationTensor(val)
+        val = val if isinstance(val, Value) else Value(val)
 
         # z = x * y
-        y = PopulationTensor(self.data * val.data, (self, val), op="*")
+        y = Value(self.data * val.data, (self, val), op="*")
 
         # --- Backward Pass ---
         # For z = x * y:
@@ -95,7 +95,7 @@ class PopulationTensor:
         x = self.data
         t = (math.exp(2*x) - 1) / (math.exp(2*x) + 1)
 
-        y = PopulationTensor(t, (self,), op="tanh")
+        y = Value(t, (self,), op="tanh")
 
         # --- Backward Pass ---
         # d/dx tanh(x) = 1 - tanh(x)^2

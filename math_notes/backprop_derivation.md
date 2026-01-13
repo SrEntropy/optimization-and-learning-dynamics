@@ -3,7 +3,7 @@
 
 This document derives backpropagation from first principles and connects the math directly to the semantics implemented by `population.py` file.
 
-We proceed in layers:
+Proceed in layers:
 
 1. Scalar chain rule  
 2. Computation graphs and local derivatives  
@@ -661,3 +661,4 @@ If these fail, everything else will too.
 - The **reverse‑mode algorithm** (backprop) is: initialize output gradient to 1, then walk the graph backward, applying local derivative rules and accumulating gradients in parents.
 
 This document provides the mathematical specification that the `PopulationTensor` engine implements. Any deviation between code and these derivations should be treated as a bug in the implementation.
+

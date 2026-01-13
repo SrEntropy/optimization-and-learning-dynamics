@@ -15,6 +15,7 @@ header("Test 1: Scalar Test (Simple Chain Rule)")
 x = PopulationTensor(2.0)
 y = PopulationTensor(3.0)
 z = x * y + x
+print(f"z =  (expected [8.0]): {z.data}")
 z.backprop()
 
 print(f"x.grad (expected [4.0]): {x.grad}")

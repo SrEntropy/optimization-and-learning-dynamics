@@ -6,8 +6,11 @@ A collection of tests validating correctness of gradients, population semantics,
 
 ## **Test 1 — Scalar Chain Rule**
 
-**Expression:**  
-$ z = x\cdot y + x$
+**Expression:** 
+- x = 2.0
+- y = 4.0
+
+$z = x\cdot y + x$
 
 
 **Expected gradients:**  
@@ -34,6 +37,9 @@ $\frac{\partial z}{\partial y} = x = 2 $
 ## **Test 2 — Vector Chain Rule**
 
 **Expression:**  
+- x = [1.0, 2.0]
+- y = [3.0, 4.0]
+
 $z = \sum (x + y)$
 
 **Expected gradients:**  
@@ -60,6 +66,10 @@ $\frac{\partial z}{\partial y_i} = 1 $
 ## **Test 3 — XOR‑Ready Neuron (tanh activation)**
 
 **Expression:**  
+- w = [1.0, -1.0]
+- x = [1.0, 0.0]
+- b = 0.0
+
 $a = \tanh(w \cdot x + b)$
 
 This test validates:

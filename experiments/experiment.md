@@ -69,7 +69,7 @@ y8.backprop()
 [NODE] op=leaf, value=[4.5], grad=[3.173398285314812e-05] | <-- Parents=[]
 ```
 ### Observation: 
-  - Gradient decays as more layer(a deep network) are introduced and much faster if input is a big negative/positive value.
+  - Gradient decays as more layers are introduced because each layer multiplies its local derivatives into the chain with the gradient coming from the next layer. If the input is very negative or positive, tanh’s derivative becomes tiny, and repeated multiplication across layers makes the gradient decay even faster.”
 
 ## Experiment 3: Population vs Scalar Sensitivity (Why population abstraction matters)
 ```python 

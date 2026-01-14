@@ -1,64 +1,79 @@
 from populationNode import  PopulationNode
-
 print("LAYER 1 — WEEK 1 EXPERIMENTS (NO TRAINING)")
 # These are micro-experiments. 
 # Each one should fit in a small script or notebook cell.
-
-print("--------------Experiment 1 — Gradient Shape Through Nonlinearity------")
+"""
+print("\n--------------Experiment 1 — Gradient Shape Through Nonlinearity------")
 print("------------------Core learning-signal intuition- -------")
-xs = [-3, -2, -1, 0, 1, 2, 3]
+xs = [-6, -3.0, -0.5, 0, .5, 3.0, 6]
 x = PopulationNode(xs)
 y = x.tanh()
 y.sum().backprop()
 
-"""
+'''
 What to record
 Where gradients are large
+-Gradients are large if the input value is closer to zero 
 Where gradients vanish
+-Gradients are smaller if the input is further away from the zero.
 Symmetry
-"""
+- if its a big negative/positive value, the gradient will be small( slow learning or saturation), or if very small negative/values, gradient will be bigger closer to 1 which implies faster learning
+'''
+
+
 
 print("\n-----------Experiment 2 — Depth-Induced Gradient Decay--------------")
 print("-----------------Vanishing gradient mechanism-----------")
-x = PopulationNode([0.5])
+x = PopulationNode([-4.5])
 y1 = x.tanh()
 y2 = y1.tanh()
 y3 = y2.tanh()
-y3.backprop()
-"""
+y4 = y3.tanh()
+y5 = y4.tanh()
+y6 = y5.tanh()
+y7 = y6.tanh()
+y8 = y7.tanh()
+y8.backprop()
+'''
 x.grad, y1.grad, y2.grad
 Key variation
 - Repeat with:
-"""
-x = PopulationNode([2.0])
+'''
+#x = PopulationNode([2.0])
 
-print("-----------Experiment 3 — Population vs Scalar Sensitivity----------------------")
+
+print("\n-----------Experiment 3 — Population vs Scalar Sensitivity----------------------")
 print("---------------------Why population abstraction matters--------")
 x_scalar = PopulationNode(0.5)
-x_pop = PopulationNode([0.5, 0.5, 0.5, 0.5])
-
 y_scalar = x_scalar.tanh()
-y_pop = x_pop.tanh()
-
 y_scalar.backprop()
-y_pop.sum().backprop()
+print("sum of unit gradient", sum(x_scalar.grad))
 
-"""
+print("-------------------------")
+x_pop = PopulationNode([0.5, 0.5, 0.5, 0.5])
+y_pop = x_pop.tanh()
+y_pop.sum().backprop()
+print("sum of population  gradient",sum(x_pop.grad))
+
+'''
 Observe:
 - Per-unit gradients
 - Aggregate gradient magnitude
-"""
-print("------------Experiment 4 — Shared Subgraph in Population------------")
+'''
+
+
+print("\n------------Experiment 4 — Shared Subgraph in Population------------")
 print("---------------------Credit assignment------------------------")
 x = PopulationNode([1.0, 2.0, 3.0])
 y = x * x + x
 z = y.sum()
 z.backprop()
-"""
+'''
 Verify analytically
 For each element:
 - 𝑑/𝑑𝑥(𝑥^2+𝑥)=2𝑥+ 1
-"""
+'''
+
 
 print("\n-----------------Experiment 5 — Reduction as Information Bottleneck---------------------")
 print("\n-------------------Learning signal compression------------")
@@ -67,29 +82,34 @@ y = x.tanh()
 z = y.sum()
 z.backprop()
 
-"""
+print("sum: ", sum(x.grad))
+'''
 Variation
 Change one element:
-"""
-x = PopulationNode([1.0, 1.0, 3.0])
-"""
+'''
+#x = PopulationNode([1.0, 1.0, 3.0])
+
+'''
 Observe:
 - Gradient redistribution
 - Loss of population identity
-"""
+'''
+
 
 print("\n-------------------Experiment 6 — Gradient Symmetry Breaking-------------------------------")
-print("\n-----------------------Why identical units diverge-----------")
+print("-----------------------Why identical units diverge-----------")
 x = PopulationNode([0.5, 0.5001])
 y = x.tanh()
 y.sum().backprop()
-"""
+'''
 Observe:
 - Small differences in gradients
 - Sensitivity to perturbations
+'''
+
 """
 print("\n-------------------Experiment 7 — Gradient Flow Without Updates----------------------------")
-print("\n------------------------Dynamics without learning-------------------")
+print("------------------------Dynamics without learning-------------------")
 
 #Setup
 #Compute gradient repeatedly for different inputs:
@@ -98,9 +118,10 @@ for v in [-3, -1, 0, 1, 3]:
     y = x.tanh()
     y.backprop()
     print(v, x.grad)
+    
 
-print("LAYER 2 — WHAT EACH EXPERIMENT DEMONSTRATES")
-"""
+print("\nLAYER 2 — WHAT EACH EXPERIMENT DEMONSTRATES")
+'''
 | Experiment | Demonstrates                             |
 | ---------- | ---------------------------------------- |
 | 1          | Local derivative shapes learning signal  |
@@ -110,4 +131,4 @@ print("LAYER 2 — WHAT EACH EXPERIMENT DEMONSTRATES")
 | 5          | Reduction compresses information         |
 | 6          | Symmetry breaking without noise          |
 | 7          | Learning signals exist without learning  |
-"""
+'''

@@ -1,0 +1,13 @@
+ 6. Add Theoretical Notes in Markdown (Rendered)
+Your math_notes/ folder exists — good — but make them:
+Easy to read
+
+Linked from the README
+
+Illustrated with equations and diagrams
+
+Markdown is viewable right on GitHub and looks professional.
+
+Math ↔ Code Correspondence
+For each derivation in math_notes/, link to the exact code in core/ that implements it.
+This tells reviewers you didn’t just read the math — you own it.

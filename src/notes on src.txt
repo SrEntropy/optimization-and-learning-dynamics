@@ -1,0 +1,19 @@
+Right now the code sits in loose folders (core/, models/). That’s fine, but converting it into a proper python package improves:
+Import clarity
+
+
+Testability
+
+
+Reusability
+
+
+Example:
+src/learning_dynamics/
+    core.py
+    tensor.py
+    optim.py
+    models/
+
+Then your notebooks and experiments import from that package.
+This aligns with software engineering best practices seen in strong ML repos.

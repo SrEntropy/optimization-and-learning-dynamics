@@ -1,0 +1,12 @@
+📌 5. Experiment Tracking / Results Logging
+At minimum:
+Save plots to a /results/ folder
+
+
+Store training logs
+
+
+Versioned results
+
+
+Eventually, consider lightweight experiment tracking (e.g., JSON/YAML logs), so you can compare runs — this is meaningful for reviewers.

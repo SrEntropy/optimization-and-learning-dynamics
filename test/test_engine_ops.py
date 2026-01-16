@@ -1,4 +1,5 @@
-from src.populationNode import PopulationNode
+from learning_dynamics.core.populationNode import PopulationNode
+from learning_dynamics.core.ops import tanh, sum_pop
 
 
 
@@ -33,7 +34,7 @@ header("Test 2: Vector Test (Simple Chain Rule)")
 
 x = PopulationNode([1.0, 2.0])
 y = PopulationNode([3.0, 4.0])
-z = (x + y).sum()     # FIX: must call sum()
+z = sum_pop(x+y)     # FIX: must call sum()
 z.backprop()
 
 print(f"x.grad (expected [1.0, 1.0]): {x.grad}")
@@ -53,8 +54,8 @@ w = PopulationNode([1.0, -1.0])
 x = PopulationNode([1.0, 0.0])
 b = PopulationNode(0.0)
 
-z = (w * x).sum() + b
-a = z.tanh()
+z = sum_pop(w * x) + b
+a = tanh(z)
 a.backprop()
 
 # expected derivative of tanh

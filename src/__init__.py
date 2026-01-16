@@ -1,1 +1,1 @@
-from .populationNode import PopulationNode
+from .learning_dynamics.core.populationNode import PopulationNode

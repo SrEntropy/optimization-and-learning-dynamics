@@ -4,8 +4,8 @@
   - Show success with MLP
   - Explain representational necesity
 
-- 2 Vanishing/Exploding Gradients
-  - Deep tanh network
+- 2 Vanishing/Exploding Gradients[DONE]
+  - Deep tanh network[DONE]
   - Show gradient norm across layers
 - 3 Stability of Training
   - Large vs small step size
@@ -27,14 +27,11 @@ y.sum().backprop()
 [NODE] op=leaf, value=[-6, -3.0, -0.5, 0, 0.5, 3.0, 6], grad=[2.4576547405286142e-05, 0.009866037165440211, 0.7864477329659274, 1.0, 0.7864477329659274, 0.009866037165440211, 2.4576547405286142e-05] | <-- Parents=[]
 ```
 ### Observation
-Where are gradients large?
-- Gradients are large if the input value is closer to zero 
+- **Large gradients**: Inputs near 0, where tanh is steep and responsive.
 
-Where gradients vanish
-- Gradients are smaller if the input value is further away from the zero.
+- **Vanishing gradients**: Inputs far from 0, where tanh saturates and its derivative approaches 0.
 
-Symmetry:
-- if its a big negative/positive value, the gradient will be small( slow learning or saturation), or if very small negative/values, gradient will be bigger closer to 1 which implies faster learning
+- **Symmetry**: Large positive or negative values both produce small gradients (slow learning), while small values of either sign produce large gradients (fast learning).
 
 
 ## Experiment 2:  Depth-Induced Gradient Decay (Vanishing gradient mechanism)
@@ -69,7 +66,9 @@ y8.backprop()
 [NODE] op=leaf, value=[4.5], grad=[3.173398285314812e-05] | <-- Parents=[]
 ```
 ### Observation: 
-  - Gradient decays as more layers are introduced because each layer multiplies its local derivatives into the chain with the gradient coming from the next layer. If the input is very negative or positive, tanh’s derivative becomes tiny, and repeated multiplication across layers makes the gradient decay even faster.”
+  - **Gradients shrink** with depth because each layer multiplies its local derivative into the chain.
+
+  - **Saturated tanh inputs (very negative or very positive)** have derivatives near 0, so multiplying many of these across layers causes the gradient to decay rapidly.
 
 ## Experiment 3: Population vs Scalar Sensitivity (Why population abstraction matters)
 ```python 
@@ -91,7 +90,7 @@ print("sum of population  gradient",sum(x_pop.grad))
 sum of population  gradient 3.1457909318637096
 ```
 ### Observation:
--   Each unit has the same local gradient as a scalar neuron, but  the total gradient magnitude scales with population size, demonstrating that population coding amplifies sensitivity and stabilizes by distributing the representation across many units.
+  - Each unit has the same local gradient as a scalar neuron, but  the total gradient magnitude scales with population size, demonstrating that population coding amplifies sensitivity and stabilizes by distributing the representation across many units.
 
 
 ## Experiment 4: Shared Subgraph in Population (Credit assignment)
@@ -142,6 +141,10 @@ x = PopulationNode([0.5, 0.5001])
 y = x.tanh()
 y.sum().backprop()
 ```
+```text
+Input: [0.5, 0.5001]
+Gradients: [0.7864477329659274, 0.7863750439424013]
+```
 
 ### Observation:
 - Tiny differences in initial values create tiny differences in local derivatives.
@@ -159,6 +162,13 @@ for v in [-3, -1, 0, 1, 3]:
     y = x.tanh()
     y.backprop()
     print(v, x.grad)
+```
+```text
+input Value:  -3 Gradient:  [0.009866037165440211]
+input Value:  -1 Gradient:  [0.41997434161402614]
+input Value:  0 Gradient:  [1.0]
+input Value:  1 Gradient:  [0.41997434161402614]
+input Value:  3 Gradient:  [0.009866037165440211]
 ```
 ### Observation:
 - Intrinsic gradient flow is the natural sensitivity pattern of an activation function across its input space, measured before any learning or parameter updates occur.

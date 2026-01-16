@@ -1,0 +1,48 @@
+Use Cases
+Your PopulationTensor‑based autodiff engine isn’t just an academic exercise — it’s a foundation for the systems you’ll build next. These use cases highlight why this work matters and how it connects to robotics, learning dynamics, and your long‑term research goals.
+
+1. Visualizations for Understanding Learning Dynamics
+Modern learning systems are dynamical systems. Visual tools make these dynamics intuitive:
+
+Loss surface contour plots  
+Reveal curvature, local minima, and how gradient descent behaves in different regions.
+
+Gradient norm heatmaps  
+Show where gradients vanish or explode, making saturation and instability visible at a glance.
+
+Dynamics vs. optimization comparisons  
+Compare discrete gradient descent with continuous‑time gradient flow to understand stability and convergence.
+
+These visualizations turn abstract math into patterns you can see, making learning behavior far more memorable and interpretable.
+
+2. Math ↔ Code Correspondence
+Every derivation in math_notes/ maps directly to an implementation in core/.
+
+This explicit correspondence:
+
+demonstrates mathematical maturity
+
+shows reviewers you understand why each line of code exists
+
+builds trust in the correctness of your autodiff engine
+
+prepares you for research‑grade work where math and implementation must align
+
+This is the kind of rigor expected in robotics, control theory, and graduate‑level machine learning.
+
+3. Why This Matters for Robotics
+Robotics is fundamentally about dynamics, control, and stable optimization. Your autodiff engine supports:
+
+Differentiable control  
+Gradients through controllers, policies, and dynamics models.
+
+Trajectory optimization  
+Many robotics algorithms rely on smooth, stable gradients.
+
+State estimation and sensor fusion  
+Population representations mirror how real robotic systems integrate noisy signals.
+
+Understanding failure modes  
+Vanishing/exploding gradients directly affect visuomotor policies and deep control networks.
+
+By studying gradient flow, saturation, and stability now, you’re preparing for the exact mathematical challenges that appear in robot learning and differentiable simulators.

@@ -119,7 +119,7 @@ $$
 
 
 
-This matches the gradients observed in **Test 1**.
+This matches the gradients observed in **test/test_engine/Test#1**.
 
 ---
 
@@ -371,7 +371,7 @@ This matches the intuition from the scalar case, applied independently per popul
 
 ---
 
-## 5. Reductions: sum
+## 5. Reductions: sum (see notebooks/stage_1-Experiment-5)
 
 A reduction collapses a vector into a scalar. For `PopulationNode`, the canonical example is:
 
@@ -459,7 +459,7 @@ $$
 
 ---
 
-### 6.1 Neuron example (as in Test 3)
+### 6.1 Neuron example (as in test/test_engine.py - Test 3)
 
 Consider a simple neuron with:
 

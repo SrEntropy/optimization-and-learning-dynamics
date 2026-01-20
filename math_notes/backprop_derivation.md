@@ -1,7 +1,7 @@
 
-# Backpropagation derivation for PopulationNode
+# Backpropagation: From First Principles
 
-This document derives backpropagation from first principles and connects the math directly to the semantics implemented by `population.py` file.
+This note derives backpropagation from calculus principles and connects the math directly to the semantics implemented by `population.py` file.
 
 Proceed in layers:
 

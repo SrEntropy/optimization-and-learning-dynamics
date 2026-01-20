@@ -83,4 +83,4 @@ $$
 $$ 
 
 
-###2 For Vanishing, Exploding, and gradient stability, see [vanishing.md](https://github.com/SrEntropy/optimization-and-learning-dynamics/edit/main/math_notes/vanishing.md) file.
+### 2 For Vanishing, Exploding, and gradient stability, see [vanishing.md](https://github.com/SrEntropy/optimization-and-learning-dynamics/edit/main/math_notes/vanishing.md) file.

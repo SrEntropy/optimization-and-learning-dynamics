@@ -58,21 +58,21 @@ $$\frac{dz}{dx} = f'(u) \cdot g'(x)$$
 Consider:
 
 
-$z = x \cdot y + x$
+$$z = x \cdot y + x$$
 
 with scalar $x, y \in \mathbb{R}$. We can define:
 
-$u = x \cdot y, \quad z = u + x$
+$$u = x \cdot y, \quad z = u + x$$
 
 We want $\frac{\partial z}{\partial x}$ and $\frac{\partial z}{\partial y}$.
 
 1. Derivative of $z$ w.r.t.  $u$ and $x$:
 
-$$\frac{\partial z}{\partial u} = 1$, $\quad \frac{\partial z}{\partial x} \Big|_{\text{direct}} = 1$$
+$$\frac{\partial z}{\partial u} = 1, \quad \frac{\partial z}{\partial x} \Big|_{\text{direct}} = 1$$
 
 
 
-2. Derivative of $u = x \cdot y $:
+2. Derivative of $u = x \cdot y$:
 
 
 
@@ -665,5 +665,6 @@ If these fail, everything else will too.
 - The **reverse‑mode algorithm** (backprop) is: initialize output gradient to 1, then walk the graph backward, applying local derivative rules and accumulating gradients in parents.
 
 This document provides the mathematical specification that the `PopulationNode` engine implements. Any deviation between code and these derivations should be treated as a bug in the implementation.
+
 
 

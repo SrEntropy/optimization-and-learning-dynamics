@@ -18,14 +18,14 @@ This file builds the bridge between continuous and discrete learning.
 
 # 1. Continuous‑Time Gradient Flow
 
-Consider parameters \(\theta(t)\) evolving smoothly over time.  
+Consider parameters $\theta(t)$ evolving smoothly over time.  
 The **continuous‑time steepest descent** dynamics are:
 
 
 
-\[
+$$
 \frac{d\theta(t)}{dt} = -\nabla L(\theta(t)).
-\]
+$$
 
 
 
@@ -339,4 +339,5 @@ Understanding the continuous‑time view gives deeper insight into:
 - the geometry of learning  
 - the behavior of deep networks  
 - the design of new architectures (ResNets, Neural ODEs)  
+
 

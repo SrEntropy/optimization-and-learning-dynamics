@@ -29,7 +29,9 @@ The **chain rule** describes how derivatives compose when we have intermediate v
 
 **What does it mean?** it means that when a function is built from multiple sub‑functions (steps), the derivative of the whole function is the product of the derivatives of each sub‑function (step), chained together. 
 
-Let $u$ and $z$ be the subfunctions: $$u = g(x), \quad z = f(u)$$
+Let $u$ and $z$ be the subfunctions:
+
+$$u = g(x), \quad z = f(u)$$
 
 Then $z = f(g(x)) $, and the chain rule says:
 
@@ -38,6 +40,7 @@ $$\frac{dz}{dx} = \frac{dz}{du} \cdot \frac{du}{dx}$$
 More explicitly:
 
 Step 1: Compute the derivative of the first sub-function $\frac{dz}{du}$
+
 $$\frac{dz}{du} = f'(u)$$
 
 Step2: Compute the derivative of the seconde sub-function $\frac{du}{dx}$
@@ -45,6 +48,7 @@ Step2: Compute the derivative of the seconde sub-function $\frac{du}{dx}$
 $$\frac{du}{dx} = g'(x)$$
 
 So: the product of  $\frac{dz}{du}$ and $\frac{du}{dx}$ is the derivative of the whole function $\frac{dz}{dx}$
+
 $$\frac{dz}{dx} = f'(u) \cdot g'(x)$$
 
 
@@ -56,19 +60,19 @@ Consider:
 
 $z = x \cdot y + x$
 
-with scalar $ x, y \in \mathbb{R} $. We can define:
+with scalar $x, y \in \mathbb{R}$. We can define:
 
 $u = x \cdot y, \quad z = u + x$
 
-We want $ \frac{\partial z}{\partial x}$ and $\frac{\partial z}{\partial y}$.
+We want $\frac{\partial z}{\partial x}$ and $\frac{\partial z}{\partial y}$.
 
 1. Derivative of $z$ w.r.t.  $u$ and $x$:
 
-$\frac{\partial z}{\partial u} = 1$, $\quad \frac{\partial z}{\partial x} \Big|_{\text{direct}} = 1$
+$$\frac{\partial z}{\partial u} = 1$, $\quad \frac{\partial z}{\partial x} \Big|_{\text{direct}} = 1$$
 
 
 
-2. Derivative of $ u = x \cdot y $:
+2. Derivative of $u = x \cdot y $:
 
 
 
@@ -76,7 +80,7 @@ $$
 \frac{\partial u}{\partial x} = y, \quad \frac{\partial u}{\partial y} = x
 $$
 
-Now, using the chain rule for $ x $:
+Now, using the chain rule for $x $:
 
 $$
 \frac{\partial z}{\partial x} = \frac{\partial z}{\partial u} \cdot \frac{\partial u}{\partial x} + \frac{\partial z}{\partial x} \Big|_{\text{direct}}
@@ -94,7 +98,7 @@ $$
 
 
 
-Similarly, for $ y $:
+Similarly, for $y $:
 
 
 
@@ -106,8 +110,8 @@ $$
 
 For the concrete values used in the test:
 
-- $ x = 2 $  
-- $ y = 3 $
+- $x = 2 $  
+- $y = 3 $
 
 we get:
 
@@ -144,14 +148,14 @@ $$
 
 The graph is:
 
-- leaf nodes: $ x, y $  
-- intermediate: $ u = x \cdot y $  
-- output: $ z = u + x $
+- leaf nodes: $x, y$  
+- intermediate: $u = x \cdot y$  
+- output: $z = u + x$
 
 Each edge carries a dependency, and each node has:
 
 - a **value** (forward pass)  
-- a **gradient** $ \frac{\partial z}{\partial (\text{node})} $ (backward pass)  
+- a **gradient** $\frac{\partial z}{\partial (\text{node})}$ (backward pass)  
 
 The key idea:
 
@@ -159,7 +163,7 @@ The key idea:
 
 Every operation defines a **local derivative rule**. For scalar variables:
 
-- Addition: $ z = x + y $
+- Addition: $z = x + y $
 
   
 
@@ -169,7 +173,7 @@ $$
 
 
 
-- Multiplication: $ z = x \cdot y $
+- Multiplication: $z = x \cdot y$
 
   
 
@@ -179,7 +183,7 @@ $$
 
 
 
-During backprop, we maintain $ \bar{v} = \frac{\partial z}{\partial v} $ for each node $ v $. For a node $ v $ with parents $ p_1, p_2, \dots $, we distribute its gradient to parents using:
+During backprop, we maintain $\bar{v} = \frac{\partial z}{\partial v}$ for each node $v$. For a node $v$ with parents $p_1, p_2, \dots $, we distribute its gradient to parents using:
 
 
 
@@ -201,11 +205,11 @@ Now consider vector‑valued variables.
 
 Let:
 
-- $ \mathbf{x} \in \mathbb{R}^n $  
-- $ \mathbf{u} = g(\mathbf{x}) \in \mathbb{R}^m $  
-- $ z = f(\mathbf{u}) \in \mathbb{R} $
+- $\mathbf{x} \in \mathbb{R}^n$  
+- $\mathbf{u} = g(\mathbf{x}) \in \mathbb{R}^m $  
+- $z = f(\mathbf{u}) \in \mathbb{R}$
 
-The derivative of a scalar $ z $ with respect to a vector $ \mathbf{x} $ is a row vector (or gradient):
+The derivative of a scalar $z$ with respect to a vector $\mathbf{x}$ is a row vector (or gradient):
 
 
 
@@ -215,7 +219,7 @@ $$
 
 
 
-The derivative of a vector $ \mathbf{u} $ with respect to $ \mathbf{x} $ is the **Jacobian**:
+The derivative of a vector $\mathbf{u}$ with respect to $\mathbf{x}$ is the **Jacobian**:
 
 $$
 \frac{\partial \mathbf{u}}{\partial \mathbf{x}} \in \mathbb{R}^{m \times n}
@@ -231,8 +235,8 @@ $$
 
 where:
 
-- $ \frac{\partial z}{\partial \mathbf{u}} \in \mathbb{R}^{1 \times m} $  
-- $ \frac{\partial \mathbf{u}}{\partial \mathbf{x}} \in \mathbb{R}^{m \times n} $
+- $\frac{\partial z}{\partial \mathbf{u}} \in \mathbb{R}^{1 \times m}$  
+- $\frac{\partial \mathbf{u}}{\partial \mathbf{x}} \in \mathbb{R}^{m \times n}$
 
 and the matrix product yields:
 
@@ -242,7 +246,7 @@ $\frac{\partial z}{\partial \mathbf{x}} \in \mathbb{R}^{1 \times n}$
 
 
 
-Reverse‑mode autodiff corresponds to propagating $ \frac{\partial z}{\partial \mathbf{u}} $ backward to get $ \frac{\partial z}{\partial \mathbf{x}} $, accumulating contributions along all paths.
+Reverse‑mode autodiff corresponds to propagating $\frac{\partial z}{\partial \mathbf{u}}$ backward to get $\frac{\partial z}{\partial \mathbf{x}}$, accumulating contributions along all paths.
 
 ---
 
@@ -272,7 +276,7 @@ $$
 
 
 
-with $ \mathbf{x}, \mathbf{y}, \mathbf{z} \in \mathbb{R}^n $, so:
+with $\mathbf{x}, \mathbf{y}, \mathbf{z} \in \mathbb{R}^n$ , so:
 
 
 
@@ -292,7 +296,7 @@ $$
 
 
 
-where $ \delta_{ij} $ is the Kronecker delta.
+where $\delta_{ij}$ is the Kronecker delta.
 
 In matrix form, both Jacobians are identity matrices:
 
@@ -328,7 +332,7 @@ $$
 \mathbf{z} = \mathbf{x} \odot \mathbf{y}
 $$
 
-where $ \odot $ is elementwise multiplication, so:
+where $\odot $ is elementwise multiplication, so:
 
 $$
 z_i = x_i \cdot y_i
@@ -356,7 +360,7 @@ x_i & \text{if } i = j \\
 \frac{\partial \mathbf{z}}{\partial \mathbf{y}} = \text{diag}(x_1, \dots, x_n)
 $$
 
-In reverse mode, for each component $ i $:
+In reverse mode, for each component $i$:
 
 $$
 \frac{\partial z}{\partial x_i} \mathrel{+}= \frac{\partial z}{\partial z_i} \cdot y_i
@@ -379,7 +383,7 @@ $$
 s = \text{sum}(\mathbf{x}) = \sum_{i=1}^n x_i
 $$
 
-We want $ \frac{\partial s}{\partial \mathbf{x}} $.
+We want $\frac{\partial s}{\partial \mathbf{x}} $.
 
 By direct differentiation:
 
@@ -395,7 +399,7 @@ $$
 \frac{\partial s}{\partial \mathbf{x}} = [1, 1, \dots, 1]
 $$
 
-In backprop, if $ \bar{s} = \frac{\partial z}{\partial s} $ is the gradient flowing into the sum node, then for each element:
+In backprop, if $\bar{s} = \frac{\partial z}{\partial s}$ is the gradient flowing into the sum node, then for each element:
 
 $$
 \frac{\partial z}{\partial x_i} \mathrel{+}= \bar{s} \cdot \frac{\partial s}{\partial x_i} = \bar{s} \cdot 1 = \bar{s}
@@ -405,10 +409,10 @@ In other words, the gradient from the scalar sum is **broadcast back** uniformly
 
 This is exactly what appears in **Test 2**, where:
 
-- $ \mathbf{z} = \mathbf{x} + \mathbf{y} $  
-- $ s = \text{sum}(\mathbf{z}) $
+- $\mathbf{z} = \mathbf{x} + \mathbf{y}$  
+- $s = \text{sum}(\mathbf{z})$
 
-and each component’s gradient with respect to $ \mathbf{x} $ and $ \mathbf{y} $ is $ 1 $.
+and each component’s gradient with respect to $\mathbf{x}$ and $\mathbf{y}$ is $1$.
 
 ---
 
@@ -444,13 +448,13 @@ $$
 \frac{\partial a_i}{\partial u_i} = 1 - \tanh^2(u_i) = 1 - a_i^2
 $$
 
-and $ \frac{\partial a_i}{\partial u_j} = 0 $ for $ i \neq j $. Hence, the Jacobian is diagonal:
+and $\frac{\partial a_i}{\partial u_j} = 0$ for $i\neq j$. Hence, the Jacobian is diagonal:
 
 $$
 \frac{\partial \mathbf{a}}{\partial \mathbf{u}} = \text{diag}\big(1 - a_1^2, \dots, 1 - a_n^2\big)
 $$
 
-In reverse mode, if $ \bar{a}_i = \frac{\partial z}{\partial a_i} $, then:
+In reverse mode, if $\bar{a}_i = \frac{\partial z}{\partial a_i}$, then:
 
 
 $$
@@ -467,7 +471,7 @@ $$
 u = w \cdot x + b
 $$
 
-where $ w, x \in \mathbb{R}^n $, and $ b \in \mathbb{R} $, and we define a scalar activation:
+where $w, x \in \mathbb{R}^n$, and $b \in \mathbb{R}$, and we define a scalar activation:
 
 $$
 a = \tanh(u)
@@ -481,11 +485,11 @@ $$
 
 We want:
 
-- $ \frac{\partial a}{\partial x_i} $  
-- $ \frac{\partial a}{\partial w_i} $  
-- $ \frac{\partial a}{\partial b} $
+- $\frac{\partial a}{\partial x_i} $  
+- $\frac{\partial a}{\partial w_i} $  
+- $\frac{\partial a}{\partial b} $
 
-First, derive gradients of $ a $ w.r.t. $ u $:
+First, derive gradients of $a$ w.r.t. $u$:
 
 
 
@@ -523,7 +527,7 @@ $$
 \frac{\partial a}{\partial b} = \frac{da}{du} \cdot \frac{\partial u}{\partial b} = (1 - \tanh^2(u)) \cdot 1
 $$
 
-In backprop notation, if $ \bar{a} = \frac{\partial z}{\partial a} $ is the gradient flowing from above, then:
+In backprop notation, if $\bar{a} = \frac{\partial z}{\partial a}$ is the gradient flowing from above, then:
 
 $$
 \bar{u} = \frac{\partial z}{\partial u} = \bar{a} \cdot (1 - \tanh^2(u))
@@ -559,13 +563,13 @@ We now summarize backprop in an abstract form that directly mirrors what the eng
      - references to its parents
      - a function that, given its gradient, distributes it to its parents (the local derivative rule).
 
-2. **Compute the output** $ z $ by evaluating operations in forward order.
+2. **Compute the output** $z$ by evaluating operations in forward order.
 
 ### 7.2 Backward pass (reverse mode)
 
-Let $ z $ be the scalar output whose gradient we want.
+Let $z $ be the scalar output whose gradient we want.
 
-1. Initialize all node gradients to zero:
+1. Initialize all node gradients $= 0$:
 
 $$
 \bar{v} = 0 \quad \text{for all nodes } v
@@ -577,16 +581,16 @@ $$
 \bar{z} = 1
 $$
 
-3. Traverse the nodes in **reverse topological order** (from outputs back to leaves). For each node $ v $:
+3. Traverse the nodes in **reverse topological order** (from outputs back to leaves). For each node $v$:
 
-   - Let its gradient be $ \bar{v} = \frac{\partial z}{\partial v} $  
-   - For each parent $ p $ of $ v $, apply the local derivative rule:
+   - Let its gradient be $\bar{v} = \frac{\partial z}{\partial v}$  
+   - For each parent $p$ of $v$, apply the local derivative rule:
 
 $$
      \bar{p} \mathrel{+}= \bar{v} \cdot \frac{\partial v}{\partial p}
      $$
 
-   where $ \frac{\partial v}{\partial p} $ may be a scalar, a vector, or an elementwise expression depending on the operation.
+   where $\frac{\partial v}{\partial p}$ may be a scalar, a vector, or an elementwise expression depending on the operation.
 
 In the `PopulationNode` context:
 
@@ -657,8 +661,9 @@ If these fail, everything else will too.
 - For `PopulationNode`, most operations are **elementwise**, which makes Jacobians diagonal and simplifies gradient flow.  
 - **Reductions** like `sum` broadcast scalar gradients back to all components.  
 - **Nonlinearities** like `tanh` have simple, well‑known derivatives that apply population‑wise.  
-- A **neuron** with $ a = \tanh(w \cdot x + b) $ is a composition of dot product, addition, and nonlinearity; its gradients follow directly from the chain rule.  
+- A **neuron** with $a = \tanh(w \cdot x + b)$ is a composition of dot product, addition, and nonlinearity; its gradients follow directly from the chain rule.  
 - The **reverse‑mode algorithm** (backprop) is: initialize output gradient to 1, then walk the graph backward, applying local derivative rules and accumulating gradients in parents.
 
 This document provides the mathematical specification that the `PopulationNode` engine implements. Any deviation between code and these derivations should be treated as a bug in the implementation.
+
 

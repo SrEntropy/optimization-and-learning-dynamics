@@ -1,16 +1,39 @@
 # Neural ODEs (Placeholder Overview)
 
 Neural ODEs extend the idea of residual networks by treating depth as a
-continuous variable. Instead of stacking discrete layers
+continuous variable. The goal of this note is not to implement Neural ODEs, but
+to show how the *discrete* forward/backward passes used in standard neural
+networks relate to their *continuous-time* counterparts.
+
+## From Discrete Steps to a Continuous Flow
+
+A ResNet block can be written as a Forward Euler step:
 
 
 
 $$
-h_{l+1} = h_l + f(h_l),
+h_{k+1} = h_k + \Delta t \, f_\theta(h_k, t_k).
 $$
 
 
-we take the continuous-time limit:
+
+Where:
+- $h_k$ = hidden state at step $k$
+- $h_{k+1}$ = hidden state at step $k+1$
+- $\Delta t$ = step size
+- $f_\theta(h_k, t_k)$ = slope/velocity at the current point
+
+Rewriting:
+
+
+
+$$
+\frac{h_{k+1} - h_k}{\Delta t} = f_\theta(h_k, t_k).
+$$
+
+
+
+Taking the limit as $\Delta t \to 0$ gives the continuous-time dynamics:
 
 
 
@@ -20,17 +43,35 @@ $$
 
 
 
-The forward pass becomes solving an ODE, and backpropagation becomes solving the
-**adjoint ODE** backward in time.
+This is the **Neural ODE**: a continuous-depth version of a ResNet.
 
-This file is currently a high-level placeholder. At some point, I will explore
-Neural ODEs in detail as long as they remain within the scope of my three repos
+## What “Forward Pass” and “Backpropagation” Mean Here
+
+Important:  
+The terms *forward pass* and *backpropagation* in this context refer to the
+**continuous-time** versions used in Neural ODEs — not the discrete forward/backward
+passes used in my autodiff engine.
+
+- **Forward pass (Neural ODE):** solve the ODE from $t=0$ to $t=T$ .
+- **Backward pass (Neural ODE):** solve the *adjoint ODE* backward in time to compute
+  gradients efficiently.
+
+These are the continuous analogues of:
+- computing activations (forward pass)
+- propagating gradients using transpose Jacobians (backprop)
+
+in a standard discrete network.
+
+## Status
+
+This file is currently a high-level placeholder. I will explore Neural ODEs in detail later if they remain within the scope of my three repos
 (optimization-and-learning-dynamics, autodiff engine, and robotics/NeuroAI).
 
-For now, the key idea is:
+For now, the key ideas are:
 
 - ResNets ≈ Forward Euler steps  
 - Neural ODEs = continuous-depth limit  
-- Backprop = adjoint ODE (reverse-time sensitivity dynamics)
+- Discrete backprop ≈ adjoint method  
+- Continuous backprop = adjoint ODE (reverse-time sensitivity dynamics)
 
-More details will be added once I reach this topic in my learning roadmap.
+More details will be added as I progress through my learning roadmap.

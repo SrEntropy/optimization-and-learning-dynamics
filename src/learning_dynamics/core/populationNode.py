@@ -1,17 +1,21 @@
-
 class PopulationNode:
-
     """
-    Population Tensor Node
+    PopulationNode: This object represents a *state variable* in a computation graph.
+    It is conceptually similar to a population of neurons with shared dynamics. 
+     .data :
+        A list of floats representing the activity/state of each unit
+        in the population. This is the forward-pass value.
 
-    - Stores population-valued data (vector)
-    - Stores population-valued gradients
-    - Tracks computational graph
-    - Executes reverse-mode autodiff
+    .grad :
+        A list of floats of the same size as .data.
+        During backpropagation, .grad stores the accumulated partial derivatives d(output)/d(this node).
+        It is only valid *after* calling .backprop().
 
-    Math operations are defined externally in ops.py
-    """
-
+    Think of this as:
+        neuronal activity, membrane potentials, firing rates, not synaptic plasticity or weight updates.
+   Think: neuronal activity, not synaptic weights. 
+   """
+    
     def __init__(self, data, _parents=(), op="leaf", requires_grad=True):
         # Normalize data to vector
         if isinstance(data, (int, float)):
@@ -19,10 +23,15 @@ class PopulationNode:
         else:
             self.data = list(data)
 
+        # Gradient vector (same size as data)
         self.grad = [0.0 for _ in self.data]
+
+        # Graph structure
         self._parents = tuple(_parents)
         self.op = op
         self.requires_grad = requires_grad
+
+        # Local backward function (set by ops)
         self._backward = lambda: None
 
     # -------------------------
@@ -30,6 +39,7 @@ class PopulationNode:
     # -------------------------
 
     def zero_grad(self):
+        # Reset gradient to zero (used before each backward pass)
         self.grad = [0.0 for _ in self.grad]
 
     def _enforce_shape(self, other):
@@ -57,18 +67,18 @@ class PopulationNode:
                 topo.append(node)
 
         visit(self)
-        # Seed gradient
+
+        # Seed gradient for final output
         self.grad = [1.0 for _ in self.grad]
 
         # Reverse traversal
         for node in reversed(topo):
             node._backward()
-             # Debug print (optional)
-            if debug: 
+            if debug:
                 print(
-                f"[NODE] op={node.op}, value={node.data}, grad={node.grad} | "
-                f"<-- Parents={[child.data for child in node._parents]}"
-            )
+                    f"[NODE] op={node.op}, value={node.data}, grad={node.grad} | "
+                    f"<-- Parents={[child.data for child in node._parents]}"
+                )
 
     # -------------------------
     # Optional operator overloading

@@ -1,9 +1,0 @@
-Make Experiments Executable Scripts
-- Folders like experiments/ should have runnable scripts (e.g., python experiments/xor.py) not just planned/notebook code.
-For each:
--Take input parameters from CLI
-- Log outputs systematically
-- Save plots automatically
-This makes it usable as a project.
-
-

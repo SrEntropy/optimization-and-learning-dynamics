@@ -1,4 +1,18 @@
-#TODO: Add, sub, mul, matmul, etc.
+
+"""
+ops.py
+
+Defines all differentiable operations on PopulationNodes.
+Each op:
+
+- computes forward population values
+- builds the computation graph
+- defines a local backward rule for reverse-mode autodiff
+
+This file contains *math*, not learning rules.
+"""
+
+#TODO:  sub, matmul, etc.
 
 import math
 from learning_dynamics.core.populationNode import PopulationNode

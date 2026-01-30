@@ -1,5 +1,4 @@
-
-from core.populationNode import PopulationNode
+from learning_dynamics.core.populationNode import PopulationNode
 
 
 class Parameter(PopulationNode):
@@ -13,13 +12,14 @@ class Parameter(PopulationNode):
     """
 
     def __init__(self, data):
-        super().__init__(data)
+        super().__init__(data, requires_grad=True)
 
     def zero_grad(self):
-        self.grad = [0.0 for _ in self.grad]
+        if self.requires_grad:
+            self.grad = [0.0 for _ in self.grad]
 
     def step(self, lr):
+        if not self.requires_grad:
+            return
         for i in range(len(self.data)):
-            self.data[i]-= lr * self.grad[i]
-
-
+            self.data[i] -= lr * self.grad[i]

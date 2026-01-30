@@ -1,7 +1,4 @@
-
-
-
-#TODO: GD, Momentum
+# TODO: GD, Momentum
 class GD:
     """
     Gradient Descent optimizer.
@@ -13,7 +10,7 @@ class GD:
     This object decides *when* learning happens,
     but parameters decide *how* they update.
     """
-    
+
     def __init__(self, params, lr):
         self.params = params
         self.lr = lr
@@ -25,5 +22,3 @@ class GD:
     def zero_grad(self):
         for p in self.params:
             p.zero_grad()
-
-

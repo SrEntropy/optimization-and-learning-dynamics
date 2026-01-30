@@ -1,7 +1,8 @@
 class PopulationNode:
     """
     PopulationNode: This object represents a *state variable* in a computation graph.
-    It is conceptually similar to a population of neurons with shared dynamics. 
+    It is conceptually similar to a population of neurons with shared dynamics.
+
      .data :
         A list of floats representing the activity/state of each unit
         in the population. This is the forward-pass value.
@@ -13,9 +14,9 @@ class PopulationNode:
 
     Think of this as:
         neuronal activity, membrane potentials, firing rates, not synaptic plasticity or weight updates.
-   Think: neuronal activity, not synaptic weights. 
-   """
-    
+    Think: neuronal activity, not synaptic weights.
+    """
+
     def __init__(self, data, _parents=(), op="leaf", requires_grad=True):
         # Normalize data to vector
         if isinstance(data, (int, float)):
@@ -40,7 +41,8 @@ class PopulationNode:
 
     def zero_grad(self):
         # Reset gradient to zero (used before each backward pass)
-        self.grad = [0.0 for _ in self.grad]
+        if self.requires_grad:
+            self.grad = [0.0 for _ in self.grad]
 
     def _enforce_shape(self, other):
         if len(self.data) != len(other.data):
@@ -52,9 +54,16 @@ class PopulationNode:
     # Autodiff
     # -------------------------
 
-    def backprop(self, debug=False):
+    def backprop(self, debug=False, seed_grad=None):
         """
         Reverse-mode autodiff
+
+        seed_grad:
+          - None (default):
+              - if output is scalar: seed grad = 1.0
+              - if output is vector: seed grad = ones (interpretable as upstream grad of ones)
+          - list[float]:
+              - must match the output shape
         """
         topo = []
         visited = set()
@@ -69,7 +78,18 @@ class PopulationNode:
         visit(self)
 
         # Seed gradient for final output
-        self.grad = [1.0 for _ in self.grad]
+        if seed_grad is None:
+            if len(self.grad) == 1:
+                self.grad = [1.0]
+            else:
+                # Keep your original behavior for vector outputs
+                self.grad = [1.0 for _ in self.grad]
+        else:
+            if len(seed_grad) != len(self.grad):
+                raise ValueError(
+                    f"seed_grad shape mismatch: expected {len(self.grad)} got {len(seed_grad)}"
+                )
+            self.grad = [float(g) for g in seed_grad]
 
         # Reverse traversal
         for node in reversed(topo):

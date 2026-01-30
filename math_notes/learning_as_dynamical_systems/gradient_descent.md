@@ -10,7 +10,7 @@ Treat optimization as a dynamical process: how parameters evolve in **time** to 
 Consider a differentiable scalar loss function $L: \mathbb{R}^n \to \mathbb{R}$, $L(\theta)$, where $\theta \in \mathbb{R}^n$ are the parameters (weights, biases, etc.) to adjust.
 
 Goal: find $\theta*$ such that $L(\theta^*) = \min_\theta L(\theta)$ (find $\theta$ that minimizes the Loss function).
-Starting from $\theta_0$ build a sequence: $\theta_0, \theta_1, \theta_2, ...$ such that $L(\theta_{t + 1}) <= L(\theta)$ and ideally $\theta_t$ approaches a (local) minimum.
+Starting from $\theta_0$ build a sequence: $\theta_0, \theta_1, \theta_2, ...$ such that $L(\theta_{t + 1}) <= L(\theta_t)$ and ideally $\theta_t$ approaches a (local) minimum.
 
 - Note: GD is just a principled way to choose each update $\theta_{t + 1}$ from $\theta_t$
 ### b. First Principle: Local Approximation Via First-order Taylor Expansion
@@ -30,24 +30,25 @@ Terms:
 - $\nabla L(\theta_t)$: Gradient of all partial derivatives at point $\theta_t$ 
 - $\nabla L(\theta_t)^\top\Delta\theta$: Directional change (Dot product  of the gradient and displacement vector $\Delta\theta$) of the approx. change in Loss.
 
-So, the approx. change in Loss is $\Delta\theta) \approx \nabla_{\theta} L(\theta_t)^\top\Delta\theta$
+So, the approx. change in Loss is $\Delta L \approx \nabla_{\theta} L(\theta_t)^\top\Delta\theta$
 
 ### c. Descent Condition and the GD Update Rule
 - Goal: Make the loss go downhill, not uphill.
 
 $L(\theta_t + \Delta\theta) < L(\theta_t)$
 
-Using Linear Approx., $L(\theta)+\nabla_{\theta} L(\theta_t)^\top\Delta\theta < L(\theta)$ => $\nabla _{\theta}L(\theta_t)^\top\Delta\theta < 0$; So, the descent condition is met. Therefore, the dot product between the gradient  and the step must be negative to go downhill. 
+Using Linear Approx., $L(\theta_t)+\nabla_{\theta} L(\theta_t)^\top\Delta\theta < L(\theta_t)$ => $\nabla _{\theta}L(\theta_t)^\top\Delta\theta < 0$; So, the descent condition is met. Therefore, the dot product between the gradient  and the step must be negative to go downhill. 
 
-The direction that **maximizes the decrease** in the linear approximation is the **negative gradient** direction:
+The direction that **maximizes the decrease** in the linear approximation (under the fixed-length constraint $\|\Delta\theta\|\approx\eta$) is the **negative gradient** direction:
 
 So,
 $$\Delta\theta = -\eta \frac{\nabla L(\theta_t)}{\|\nabla L(\theta_t)\|} $$
 Normalized steepest descent; when a vector is divided by its own length (norm). 
 This means stripping its magnitude/speed to conserve only the direction.
 
-Since the gradient points up (increasing error), multiply by negative one to point down (decreasing error). So, the gradient is descending. So the descent condition is satisfy by
+Since the gradient points up (increasing error), multiply by negative one to point down (decreasing error). So, the gradient is descending.
 
+In standard GD, we take a step proportional to the gradient (so the step length is not fixed; it scales with $\|\nabla L(\theta_t)\|$):
  $$\Delta\theta_t = - \eta\nabla_{\theta} L(\theta_t)$$
 
  where:
@@ -66,12 +67,16 @@ Why does this make sense?
 - $-\nabla L(\theta_t)$ is the **direction of steepest descent** (by definition of the gradient).
 
 This checks the descent condition:
-$$\nabla_{\theta} L(\theta_t)^\top\Delta\theta_t = \nabla_{\theta} L(\theta_t)^\top(-\eta\nabla_{\theta}L(\theta_t) =-\eta||\nabla_{\theta}L(\theta_t)^\top||^2<0  $$
+$$
+\nabla_{\theta} L(\theta_t)^\top\Delta\theta_t
+= \nabla_{\theta} L(\theta_t)^\top(-\eta\nabla_{\theta}L(\theta_t))
+= -\eta \|\nabla_{\theta}L(\theta_t)\|^2 < 0
+$$
  
 
 - $\eta$ controls trade-off: 
     - Too little → slow progress
-    - Medium → Oscillate by converges
+    - Medium → Oscillate but converges
     - Too large → overshoot/divergence.
 
 whenever $\nabla_{\theta} L(\theta_t)$ not=$0$, for sufficiently small $\eta$, the update is guaranteed to decrease the $Loss Function$. 
@@ -79,8 +84,8 @@ whenever $\nabla_{\theta} L(\theta_t)$ not=$0$, for sufficiently small $\eta$, t
 Therefore, the GD update rule is
 
 $$ 
-\theta_{[t+1)} = \theta_t + \Delta\theta_t = \theta_t-\eta\nabla_\theta L(\theta_t)
+\theta_{t+1} = \theta_t + \Delta\theta_t = \theta_t-\eta\nabla_\theta L(\theta_t)
 $$ 
 
 
-### 2. For Vanishing, Exploding, and gradient stability, see [vanishing.md](https://github.com/SrEntropy/optimization-and-learning-dynamics/edit/main/math_notes/vanishing.md) file.
+### 2. For Vanishing, Exploding, and gradient stability, see [vanishing.md](https://github.com/SrEntropy/optimization-and-learning-dynamics/blob/main/math_notes/vanishing.md) file.

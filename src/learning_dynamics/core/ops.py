@@ -27,6 +27,7 @@ def _as_node(x):
 
 
 def add(a, b):
+    a = _as_node(a)
     b = _as_node(b)
     a._enforce_shape(b)
 
@@ -44,7 +45,27 @@ def add(a, b):
     return out
 
 
+def sub(a, b):
+    a = _as_node(a)
+    b = _as_node(b)
+    a._enforce_shape(b)
+
+    out_data = [x - y for x, y in zip(a.data, b.data)]
+    out = PopulationNode(out_data, (a, b), op="-")
+
+    def _backward():
+        for i in range(len(out.grad)):
+            if a.requires_grad:
+                a.grad[i] += out.grad[i]
+            if b.requires_grad:
+                b.grad[i] -= out.grad[i]
+
+    out._backward = _backward
+    return out
+
+
 def mul(a, b):
+    a = _as_node(a)
     b = _as_node(b)
     a._enforce_shape(b)
 
@@ -67,6 +88,8 @@ def mul(a, b):
 
 
 def tanh(x):
+    x = _as_node(x)
+
     out_data = [math.tanh(v) for v in x.data]
     out = PopulationNode(out_data, (x,), op="tanh")
 
@@ -88,6 +111,8 @@ def sum_pop(x):
     """
     Sum population into a scalar node
     """
+    x = _as_node(x)
+
     out = PopulationNode(sum(x.data), (x,), op="sum")
 
     def _backward():

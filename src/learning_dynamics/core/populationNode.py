@@ -64,7 +64,12 @@ class PopulationNode:
               - if output is vector: seed grad = ones (interpretable as upstream grad of ones)
           - list[float]:
               - must match the output shape
+
+        Note (warning!):
+        - Gradients accumulate by design (+=). If backprop is called multiple times
+        without clearing  grad, values will add up.  
         """
+
         topo = []
         visited = set()
 
@@ -101,12 +106,43 @@ class PopulationNode:
                 )
 
     # -------------------------
+    # Optional helper for reusing graphs/state
+    # -------------------------
+    def zero_grad_graph(self):
+        """Zero grads for all nodes reachable from this node
+        (including intermediates)."""
+        topo  = []
+    
+        visited = set()
+
+        def visit(node):
+            if node not in visited:
+                visited.add(node)
+                for parent in node._parents:
+                    visit(parent)
+                topo.append(node)
+
+        visit(self)
+        for node in topo:
+            node.zero_grad()
+
+
+    # -------------------------
     # Optional operator overloading
     # -------------------------
 
     def __add__(self, other):
         from learning_dynamics.core.ops import add
         return add(self, other)
+    
+    def __sub__(self, other):
+        from learning_dynamics.core.ops import sub
+        return sub(self, other)
+
+    def __rsub__(self, other):
+        from learning_dynamics.core.ops import sub
+        return sub(other, self)
+
 
     def __mul__(self, other):
         from learning_dynamics.core.ops import mul
@@ -114,6 +150,11 @@ class PopulationNode:
 
     __radd__ = __add__
     __rmul__ = __mul__
+
+    
+    def tanh(self):
+        from learning_dynamics.core.ops import tanh
+        return tanh(self)
 
     # -------------------------
     # Representation

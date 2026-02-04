@@ -1,79 +1,75 @@
+# learning_dynamics/core/populationNode.py
+
+from __future__ import annotations
+from typing import Iterable, Callable, Tuple, List, Optional, Any
+
+
 class PopulationNode:
     """
-    PopulationNode: This object represents a *state variable* in a computation graph.
-    It is conceptually similar to a population of neurons with shared dynamics.
+    PopulationNode = state variable in a computation graph.
 
-     .data :
-        A list of floats representing the activity/state of each unit
-        in the population. This is the forward-pass value.
+    Conceptually:
+      - Think "population activity" (neuronal state), not synaptic weights.
+      - .data is the forward-pass value (vector of floats).
+      - .grad accumulates d(output)/d(this node), same shape as .data,
+        valid only after .backprop().
 
-    .grad :
-        A list of floats of the same size as .data.
-        During backpropagation, .grad stores the accumulated partial derivatives d(output)/d(this node).
-        It is only valid *after* calling .backprop().
-
-    Think of this as:
-        neuronal activity, membrane potentials, firing rates, not synaptic plasticity or weight updates.
-    Think: neuronal activity, not synaptic weights.
+    Notes:
+      - Gradients ACCUMULATE by design (+=). Call .zero_grad_graph()
+        before a fresh backward pass if you don't want accumulation.
+      - This class is intentionally lightweight; it is not a full tensor library.
     """
 
-    def __init__(self, data, _parents=(), op="leaf", requires_grad=True):
-        # Normalize data to vector
+    def __init__(
+        self,
+        data: Any,
+        _parents: Tuple["PopulationNode", ...] = (),
+        op: str = "leaf",
+        requires_grad: bool = True,
+    ):
+        # Normalize data to a list[float]
         if isinstance(data, (int, float)):
-            self.data = [float(data)]
+            self.data: List[float] = [float(data)]
         else:
-            self.data = list(data)
+            # Force float conversion for numerical hygiene and consistent behavior
+            self.data = [float(x) for x in data]
 
-        # Gradient vector (same size as data)
-        self.grad = [0.0 for _ in self.data]
+        # Gradient vector (same shape as data)
+        self.grad: List[float] = [0.0 for _ in self.data]
 
         # Graph structure
-        self._parents = tuple(_parents)
-        self.op = op
-        self.requires_grad = requires_grad
+        self._parents: Tuple["PopulationNode", ...] = tuple(_parents)
+        self.op: str = op
+        self.requires_grad: bool = bool(requires_grad)
 
         # Local backward function (set by ops)
-        self._backward = lambda: None
+        self._backward: Callable[[], None] = lambda: None
 
     # -------------------------
     # Utility
     # -------------------------
 
-    def zero_grad(self):
-        # Reset gradient to zero (used before each backward pass)
+    def zero_grad(self) -> None:
+        """Reset *this node's* grad buffer to zero."""
         if self.requires_grad:
             self.grad = [0.0 for _ in self.grad]
 
-    def _enforce_shape(self, other):
+    def _enforce_shape(self, other: "PopulationNode") -> None:
+        """Strict shape check for elementwise ops."""
         if len(self.data) != len(other.data):
             raise ValueError(
                 f"Population size mismatch: {len(self.data)} vs {len(other.data)}"
             )
 
-    # -------------------------
-    # Autodiff
-    # -------------------------
-
-    def backprop(self, debug=False, seed_grad=None):
+    def _topological_order(self) -> List["PopulationNode"]:
         """
-        Reverse-mode autodiff
-
-        seed_grad:
-          - None (default):
-              - if output is scalar: seed grad = 1.0
-              - if output is vector: seed grad = ones (interpretable as upstream grad of ones)
-          - list[float]:
-              - must match the output shape
-
-        Note (warning!):
-        - Gradients accumulate by design (+=). If backprop is called multiple times
-        without clearing  grad, values will add up.  
+        Return nodes reachable from self in topological order.
+        (parents come before children)
         """
-
-        topo = []
+        topo: List[PopulationNode] = []
         visited = set()
 
-        def visit(node):
+        def visit(node: PopulationNode):
             if node not in visited:
                 visited.add(node)
                 for parent in node._parents:
@@ -81,13 +77,35 @@ class PopulationNode:
                 topo.append(node)
 
         visit(self)
+        return topo
 
-        # Seed gradient for final output
+    # -------------------------
+    # Autodiff
+    # -------------------------
+
+    def backprop(self, debug: bool = False, seed_grad: Optional[List[float]] = None) -> None:
+        """
+        Reverse-mode autodiff from this node.
+
+        seed_grad:
+          - None (default):
+              - if output is scalar: seed grad = [1.0]
+              - if output is vector: seed grad = ones (interpretable as upstream grad of ones)
+          - list[float]:
+              - must match output shape exactly
+
+        IMPORTANT:
+          - Gradients accumulate (+=). Call zero_grad_graph() beforehand
+            if you want a clean backward pass.
+        """
+        topo = self._topological_order()
+
+        # Seed gradient for final output node
         if seed_grad is None:
             if len(self.grad) == 1:
                 self.grad = [1.0]
             else:
-                # Keep your original behavior for vector outputs
+                # For vector output, default is upstream ones (sum-of-components objective)
                 self.grad = [1.0 for _ in self.grad]
         else:
             if len(seed_grad) != len(self.grad):
@@ -96,45 +114,32 @@ class PopulationNode:
                 )
             self.grad = [float(g) for g in seed_grad]
 
-        # Reverse traversal
+        # Reverse traversal: apply each node's local backward rule
         for node in reversed(topo):
             node._backward()
+
             if debug:
                 print(
                     f"[NODE] op={node.op}, value={node.data}, grad={node.grad} | "
-                    f"<-- Parents={[child.data for child in node._parents]}"
+                    f"<-- Parents={[p.data for p in node._parents]}"
                 )
 
-    # -------------------------
-    # Optional helper for reusing graphs/state
-    # -------------------------
-    def zero_grad_graph(self):
-        """Zero grads for all nodes reachable from this node
-        (including intermediates)."""
-        topo  = []
-    
-        visited = set()
-
-        def visit(node):
-            if node not in visited:
-                visited.add(node)
-                for parent in node._parents:
-                    visit(parent)
-                topo.append(node)
-
-        visit(self)
-        for node in topo:
+    def zero_grad_graph(self) -> None:
+        """
+        Zero grads for all nodes reachable from this node (including intermediates).
+        Use before running a fresh backward pass to avoid accumulation.
+        """
+        for node in self._topological_order():
             node.zero_grad()
 
-
     # -------------------------
-    # Optional operator overloading
+    # Operator overloading
     # -------------------------
 
     def __add__(self, other):
         from learning_dynamics.core.ops import add
         return add(self, other)
-    
+
     def __sub__(self, other):
         from learning_dynamics.core.ops import sub
         return sub(self, other)
@@ -143,7 +148,6 @@ class PopulationNode:
         from learning_dynamics.core.ops import sub
         return sub(other, self)
 
-
     def __mul__(self, other):
         from learning_dynamics.core.ops import mul
         return mul(self, other)
@@ -151,7 +155,10 @@ class PopulationNode:
     __radd__ = __add__
     __rmul__ = __mul__
 
-    
+    def matvec(self, A):
+        from learning_dynamics.core.ops import matvec
+        return matvec(A, self)
+
     def tanh(self):
         from learning_dynamics.core.ops import tanh
         return tanh(self)
@@ -160,8 +167,5 @@ class PopulationNode:
     # Representation
     # -------------------------
 
-    def __repr__(self):
-        return (
-            f"PopulationNode(data={self.data}, "
-            f"grad={self.grad}, op='{self.op}')"
-        )
+    def __repr__(self) -> str:
+        return f"PopulationNode(data={self.data}, grad={self.grad}, op='{self.op}')"

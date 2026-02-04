@@ -1,205 +1,69 @@
-# Optimization and learning-dynamics
-A research‑driven exploration of how learning emerges from optimization, signal flow, and dynamical systems implemented entirely from first principles using NumPy.
+# Optimization and Learning Dynamics (from Scratch)
 
-This project demonstrates mathematical maturity, engineering clarity, and the ability to reason about learning at a mechanistic level.
-## Project Vision
-Modern ML frameworks hide the mechanics of learning.
-This repository rebuilds them from scratch to answer four foundational questions:
+A research-driven codebase that rebuilds **learning mechanics from first principles** (NumPy only): autodiff, backprop, optimization dynamics, and curvature-based stability.  
+This repo is designed to answer one question clearly:
 
-#
-## Stage 1:  How does credit flow?
-### Autodiff + population signals
-- Construct a minimal Tensor class
-- Build computation graphs
-- Implement reverse‑mode autodiff
-- Explore distributed credit assignment through population‑coded activations
+> **Do I understand how learning works under the hood — mathematically and mechanistically — not just how to use a framework?**
 
-#
+---
 
-## Phasee 2:  What I Learned
-### Core Insight
-- Learning in neural networks is not explained by gradients alone. It is governed by the dynamics of the update rule, which turns optimization into a discrete-time dynamical system. Correct gradients do not guarantee learning; stability, symmetry, and step size critically shape outcomes.
+## Why this repo exists
 
-### 1. Gradients Can Be Correct While Learning Fails
+Modern ML frameworks hide the physics of training. This project exposes it.
 
-- We learned that gradients can be locally correct yet still fail to produce learning because optimization unfolds over time through repeated updates. Gradient descent defines a state evolution process, not a single optimization step. If the update dynamics are unstable, oscillatory, or poorly conditioned, learning fails despite valid gradients.
+What I’m proving here:
+- I can **derive** learning rules (not copy them)
+- I can **analyze** learning as a **dynamical system**
+- I can connect **loss geometry (Hessian spectrum)** to **training behavior**
+- I can write clean, auditable research code and explain it
 
-**Key takeaway:** Learning failure is often a dynamical failure, not a gradient computation error.
+---
 
-### 2. Gradient Descent Is a Discrete-Time Dynamical System
+## Project roadmap (4 stages)
 
-- Gradient descent is a difference equation:
+### Stage 1: How does credit flow?
+**Autodiff + population signals**
+- Minimal `Tensor` class + computation graph
+- Reverse-mode autodiff (handwritten backward passes)
+- Early experiments with distributed / population-coded signals
 
-$$
-𝜃_{𝑡+1}=𝜃_𝑡−𝜂∇𝐿(𝜃_𝑡)
-$$
+### Stage 2: How does learning unfold in time?
+**Learning = discrete-time dynamics**
+Core insight:
+- *Correct gradients do not guarantee learning.*
+- Gradient descent defines a **state update rule**; stability, symmetry, and step size determine outcomes.
 
-This recursive rule evolves parameters over discrete time steps, approximating continuous gradient flow only when the step size is sufficiently small.
-
-**Key takeaway:** Training trajectories must be analyzed using tools from dynamical systems, not just optimization theory.
-
-### 3. Step Size Controls Stability, Not Just Speed
-
-- The learning rate determines whether updates:
-    - converge smoothly
-    - oscillate
-    - diverge
-    - explode.
-
-Large step sizes break the approximation to continuous gradient flow and can push the system into unstable regimes.
-
-**Key takeaway:** Step size defines the stability regime of learning dynamics, not merely training speed.
-
-4. Instability Has a Precise Mathematical Meaning
-
-- Instability occurs when small perturbations grow over time. Formally, this happens when the Jacobian of the update map has eigenvalues with magnitude ≥ 1.
-
-**Key takeaway:** Instability is diagnosable and predictable using linearized dynamics.
-
-### 5. Population Symmetry Emerges from Architecture and Initialization
-
-- When units are:
-    - identically initialized, governed by the same update rules, and architecturally interchangeable, the system becomes permutation-equivariant, causing units to evolve identically.
-
-**Key takeaway:** Symmetry is a structural property of the model and its dynamics, not an accident.
-
-### 6. Symmetry Breaking Enables Learning
-
-- Symmetry breaks when gradients differ across units. This can arise from:
-    - random initialization
-    - noise
-    - architectural bottlenecks,
-    - unstable Jacobian modes.
-
-Once symmetry breaks, units specialize and learning becomes expressive.
-
-**Key takeaway:** Learning often requires symmetry breaking.
-
-### 7. Parameters and Tensors Play Fundamentally Different Roles
-
-- Parameters are state variables of the learning dynamical system.
-- Tensors are intermediate values used for computation.
-
-This separation clarifies why only parameters accumulate history and evolve across time.
-
-**Key takeaway:** Learning dynamics act on parameters, not on transient computational values.
-
-### 8. Failure Is Informative
-
-- Training failures expose:
-
-    - architectural limitations,
-    - unstable regimes
-    - symmetry traps
-    - poor dynamical conditioning.
-
-Rather than being discarded, failures provide diagnostic insight into why learning is impossible under certain conditions.
-
-**Key takeaway:** Failure reveals the structure and constraints of the learning system.
-
-### Week 2 Summary
-
-By the end of Week 2, we shifted from viewing training as “gradient optimization” to understanding it as dynamical system evolution. This reframing explains instability, symmetry, failure modes, and the central role of step size—laying the foundation for deeper analysis of learning dynamics in neural and biologically inspired systems.
+What I learned:
+- GD is a **difference equation**:  
+  $$\theta_{t+1} = \theta_t - \eta \nabla L(\theta_t)$$
+- Step size controls **stability regimes** (convergent / oscillatory / divergent)
+- Instability is predictable via the **Jacobian** (linearized dynamics)
+- Symmetry can trap learning; **symmetry breaking** enables specialization
 
 ### Stage 3: How do geometry & optimizers shape learning?
-#### Loss surfaces + momentum
-- Visualize 1D/2D loss landscapes
-- Examine curvature, ridges, and basins
-- Implement momentum, RMSProp, Adam
-- Show how geometry influences optimizer trajectories
+**Curvature, conditioning, zig-zag, momentum**
+Unified picture:
+> **Gradient descent is a discrete-time dynamical system governed by curvature (Hessian eigenvalues) and parameterization.**
 
-#
+Key results:
+- The Hessian spectrum predicts stability through:
+  $$\eta < \frac{2}{\lambda_{\max}}$$
+- Narrow valleys (high condition number) cause slow progress + zig-zag:
+  $$\kappa = \frac{\lambda_{\max}}{\lambda_{\min}}$$
+- Momentum introduces internal state (velocity), turning learning into a **second-order** discrete-time system:
+  $$v_{t+1} = \beta v_t - \eta \nabla L(\theta_t),\quad \theta_{t+1} = \theta_t + v_{t+1}$$
 
+**Stage 3 notes:** see `math_notes/stage3_math_notes_with_dollars_v2.md`
 
-### Stage 4 — How does learning become a dynamical system?
-#### Gradient flow + NeuroAI bridge
-- Treat learning as an ODE
-- Simulate continuous‑time neural dynamics
-- Connect optimization principles to biological learning
-- Explore population‑based representations as dynamical systems
+### Stage 4: How does learning become a continuous dynamical system?
+**Gradient flow + NeuroAI bridge**
+- Interpret GD as Euler discretization of gradient flow:
+  $$\dot{\theta} = -\nabla L(\theta)$$
+- Simulate continuous-time dynamics with ODE solvers
+- Compare discrete vs continuous behavior
+- Bridge toward biological / neuromorphic learning perspectives
 
-### What This Repository Demonstrates
-This project shows the ability to:
-- derive learning rules mathematically
-- reason about stability and convergence
-- connect discrete optimization to continuous dynamics
-- visualize and interpret loss geometry
-- design clean, research‑grade software
-- communicate complex ideas clearly and rigorously
+---
 
-These are core competencies for graduate‑level ML, robotics, and NeuroAI research.
-
-### Core Implementations
-- Minimal Tensor class
-- Reverse‑mode autograd engine
-- Backpropagation from first principles
-- Gradient descent + momentum‑based optimizers
-- Loss landscape visualization tools
-- Continuous‑time gradient flow simulators
-- Simple ODE‑based neural dynamics
-
-Experiments:
-- XOR from scratch
-- Vanishing & exploding gradients
-- Stability of training
-- Gradient flow vs. gradient descent
-- Population‑coded activations & credit assignment
-
-Each experiment is designed to reveal a specific phenomenon in learning dynamics.
-- A research‑driven exploration of how learning emerges from optimization, signal flow, and dynamical systems — implemented entirely from first principles using NumPy.
-
-This project demonstrates mathematical maturity, engineering clarity, and the ability to reason about learning at a mechanistic level.
-
-## Motivation: 
-- Can I derive learning rules?
-- Can I reason about stability
-- Can I connect discrete optimization to continuous dynamics?
-How does credit flow?
-- Autodiff + population signals
-How does learning unfold in time?
-- GD + stability
-
-
-- Mathematical Foundations
-- Design decisions
-- Key experiments
-- What does this teach about learning systems?
-- How does this connect to robotics and NeuroAI?  
- 
-## What it contains
-- Backprop from scratch 
-- Autograd engine (minimal)
-- Gradient descent variants
-- Visualization of loss landscapes
-- Simple ODE-based neural dynamics
-
-## Tech
-- Numpy only
-- No Pytorch here
-
-## Core Components (implementation)
-- A. Minimal Tensor + Autograd Engine
-- B. Backpropagation From First Principles
-- C. Optimization Algorithms
-- D. Loss Landscapes & Geometry
-- E. Continuous-Time Gradient Flow
-
-# Core Experiments
-- 1 XOR From Scratch
-- 2 Vanishing/Exploding Gradients
-- 3 Stability of Training
-- 4 Gradient Flow vs GD
-
-
-
-
-
-
-
-
-
-
-
-
-
+## Repo structure (high level)
 

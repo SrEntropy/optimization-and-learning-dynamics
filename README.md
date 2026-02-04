@@ -1,17 +1,23 @@
 # Optimization and Learning Dynamics (from Scratch)
-
+---
 A research-driven codebase that rebuilds **learning mechanics from first principles** (NumPy only): autodiff, backprop, optimization dynamics, and curvature-based stability.  
 This repo is designed to answer one question clearly:
 
 > **Do I understand how learning works under the hood, mathematically and mechanistically, not just how to use a framework?**
 
+This repo rebuilds learning from first principles, from credit assignment to discrete‑time learning dynamics to curvature and stability to continuous‑time gradient flow.
+
+---
+## Why does this matter?
+A rigorous understanding of learning as a dynamical system is foundational to the research directions I intend to pursue at the [2026 Telluride Neuromorphic AI Workshop](https://www.neuropac.info/event/2026-telluride-neuromorphic-ai-workshop/), my MSc thesis in Reinforcement Learning and Embodied AI, and will lead to a PhD focused on intelligent adaptive systems. Optimization governs how agents update internal representations, stabilize behavior, and integrate information over time by studying learning from first principles. redit assignment, discrete‑time updates, curvature, and continuous‑time gradient flow. This project develops the mathematical framework for analyzing and designing learning rules that are stable, interpretable, and biologically relevant. This perspective is central to modern work in neuromorphic robotics, multimodal learning, and the control of embodied agents.
+
+---
 | Stage | Theme | Key Ideas |
 |-------|--------|-----------|
 | **1** | Credit Assignment (Autodiff) | Computation graph → reverse-mode autodiff → gradient flow |
 | **2** | Discrete-Time Learning (GD) | θ_{t+1} = θ_t - η ∇L(θ_t); stability from step size & Jacobian |
 | **3** | Geometry & Optimizers | Hessian eigenvalues → curvature → conditioning → momentum dynamics |
 | **4** | Continuous-Time Learning | GD = Euler discretization of ẋ = -∇L(x); continuous vs discrete behavior |
-
 
 
 ---
@@ -29,7 +35,7 @@ What I’m proving here:
 ---
 
 ## Project roadmap (4 stages)
-
+---
 ### Stage 1: How does credit flow?
 - Math note: [backprop and autodiff engine](https://github.com/SrEntropy/optimization-and-learning-dynamics/blob/main/math_notes/learning_as_dynamical_systems/stage_1_backprop_derivation.md)
 - Notebook: [Experiments and Observations](https://github.com/SrEntropy/optimization-and-learning-dynamics/blob/main/notebooks/phase_1_gradient_population.ipynb)
@@ -58,6 +64,7 @@ Built this from first principles:
 
 **Summary:** Stage 1 shows that learning begins with information flow: how errors propagate backward through a structured computational graph.
 
+---
 
 ### Stage 2: How does learning unfold in time?
 - Math notes:[Gradient Descent](https://github.com/SrEntropy/optimization-and-learning-dynamics/blob/main/math_notes/learning_as_dynamical_systems/stage_2_1_gradient_descent.md), [Continuous Vs Discrete systems](https://github.com/SrEntropy/optimization-and-learning-dynamics/blob/main/math_notes/learning_as_dynamical_systems/stage_2_3_continuous_vs_discrete.md)
@@ -87,6 +94,7 @@ When deriving GD from a Taylor expansion, I implicitly discovered:
 
 **Summary**: Stage 2 shows that learning is a discrete-time dynamical system whose stability depends on step size, symmetry, and local linearization.
 
+---
 
 ### Stage 3: How do geometry & optimizers shape learning?
 - Math notes:[Optimization, Geometry and Hessian, Eigen Values](https://github.com/SrEntropy/optimization-and-learning-dynamics/blob/main/math_notes/learning_as_dynamical_systems/stage_3_optimization_geometry.md)
@@ -110,9 +118,10 @@ $$v_{t+1} = \beta v_t - \eta \nabla L(\theta_t),\quad \theta_{t+1} = \theta_t + 
 
 **Summary**: By analyzing the Hessian, we can predict when gradient descent will converge, oscillate, or diverge based on the eigenvalues. Introducing momentum turns the update into a second‑order dynamical system, mathematically equivalent to a damped harmonic oscillator. The resulting quadratic characteristic equation allows us to classify the behavior as overdamped, critically damped, or underdamped, providing a complete picture of stability for momentum‑based learning.
 
+---
 
 ### Stage 4: How does learning become a continuous dynamical system?
-- Math notes:[]()
+- Math notes:[Continuous vs Discrete](https://github.com/SrEntropy/optimization-and-learning-dynamics/blob/main/math_notes/learning_as_dynamical_systems/stage_2_3_continuous_vs_discrete.md)
 - Notebook: [Experiments and Observations]()
 Gradient flow, ODEs, and the bridge to NeuroAI
 **Core idea:**  
@@ -123,7 +132,7 @@ Understanding this limit reveals the ideal behavior that discrete updates aim to
 **What you discovered:**
 - Gradient descent is **Forward Euler** applied to the ODE
 
-$$\theta = \nabla L(\theta_t)$$
+$$\theta = -\nabla L(\theta_t)$$
   
 - The continuous system (“gradient flow”) is perfectly smooth:
   - no oscillation

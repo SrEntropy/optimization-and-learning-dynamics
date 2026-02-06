@@ -1,4 +1,4 @@
-# learning_dynamics/core/ops.py
+# Learning_dynamics/core/ops.py
 
 """
 Defines differentiable operations on PopulationNode.
@@ -13,7 +13,7 @@ This file contains *math ops*, not learning rules or optimizers.
 
 import math
 from typing import Tuple, Any, List
-from learning_dynamics.core.populationNode import PopulationNode
+from core.populationNode import PopulationNode
 
 
 # -------------------------

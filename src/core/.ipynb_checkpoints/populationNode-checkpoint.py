@@ -137,30 +137,30 @@ class PopulationNode:
     # -------------------------
 
     def __add__(self, other):
-        from learning_dynamics.core.ops import add
+        from core.ops import add
         return add(self, other)
 
     def __sub__(self, other):
-        from learning_dynamics.core.ops import sub
+        from core.ops import sub
         return sub(self, other)
 
     def __rsub__(self, other):
-        from learning_dynamics.core.ops import sub
+        from core.ops import sub
         return sub(other, self)
 
     def __mul__(self, other):
-        from learning_dynamics.core.ops import mul
+        from core.ops import mul
         return mul(self, other)
 
     __radd__ = __add__
     __rmul__ = __mul__
 
     def matvec(self, A):
-        from learning_dynamics.core.ops import matvec
+        from core.ops import matvec
         return matvec(A, self)
 
     def tanh(self):
-        from learning_dynamics.core.ops import tanh
+        from core.ops import tanh
         return tanh(self)
 
     # -------------------------
@@ -168,4 +168,4 @@ class PopulationNode:
     # -------------------------
 
     def __repr__(self) -> str:
-        return f"PopulationNode(data={self.data}, grad={self.grad}, op='{self.op}')"
+        return f"PopulationNode( data={self.data}, grad={self.grad}, op='{self.op}')"

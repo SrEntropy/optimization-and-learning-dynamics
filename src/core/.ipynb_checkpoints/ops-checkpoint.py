@@ -166,7 +166,7 @@ def mul(a: Any, b: Any) -> PopulationNode:
     return out
 
 
-def tanh(x: Any) -> PopulationNode:
+"""def tanh(x: Any) -> PopulationNode:
     x = _as_node(x)
 
     out_data = [math.tanh(v) for v in x.data]
@@ -187,7 +187,7 @@ def tanh(x: Any) -> PopulationNode:
     out._backward = _backward
     return out
 
-
+"""
 # -------------------------
 # Reduction
 # -------------------------
@@ -284,6 +284,35 @@ def matvec(A: Any, x: Any) -> PopulationNode:
             for i in range(m):
                 s += AT[j][i] * out.grad[i]
             x.grad[j] += s
+
+    out._backward = _backward
+    return out
+
+
+def stack(nodes):
+    """
+    Stack scalar nodes (len==1) into a vector node, preserving autodiff.
+
+    out.data[i] = nodes[i].data[0]
+    nodes[i].grad[0] += out.grad[i]
+    """
+    if len(nodes) == 0:
+        raise ValueError("stack() requires a non-empty list")
+
+    for n in nodes:
+        if not isinstance(n, PopulationNode):
+            raise TypeError("stack() expects PopulationNode inputs")
+        if len(n.data) != 1:
+            raise ValueError("stack() expects scalar nodes (len==1)")
+
+    out_data = [n.data[0] for n in nodes]
+    requires_grad = any(n.requires_grad for n in nodes)
+    out = PopulationNode(out_data, tuple(nodes), op="stack", requires_grad=requires_grad)
+
+    def _backward():
+        for i, n in enumerate(nodes):
+            if n.requires_grad:
+                n.grad[0] += out.grad[i]
 
     out._backward = _backward
     return out

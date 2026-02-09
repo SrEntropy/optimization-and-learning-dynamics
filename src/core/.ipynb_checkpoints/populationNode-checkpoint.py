@@ -99,8 +99,12 @@ class PopulationNode:
             if you want a clean backward pass.
         """
         topo = self._topological_order()
-
-        # Seed gradient for final output node
+        #1 Reset grads for all NON-LEAF nodes (intermediate nodes) 
+        for node in topo:
+            if node._parents:   # non-leaf
+                node.grad = [0.0 for _ in node.grad]
+                
+        #2 Seed gradient for final output node
         if seed_grad is None:
             if len(self.grad) == 1:
                 self.grad = [1.0]
@@ -114,7 +118,7 @@ class PopulationNode:
                 )
             self.grad = [float(g) for g in seed_grad]
 
-        # Reverse traversal: apply each node's local backward rule
+        #3 Reverse traversal: apply each node's local backward rule
         for node in reversed(topo):
             node._backward()
 
